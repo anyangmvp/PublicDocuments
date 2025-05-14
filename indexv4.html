@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/antd@5.10.0/dist/antd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.10.0/dist/antd.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#FF7D00',
+                        dark: '#1D2129',
+                        light: '#F2F3F5',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .message-appear {
+                animation: messageAppear 0.3s ease-out;
+            }
+            @keyframes messageAppear {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .file-drop-active {
+                border-color: #165DFF;
+                background-color: rgba(22, 93, 255, 0.05);
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen flex flex-col">
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Left Sidebar -->
+        <div class="w-64 bg-white border-r border-gray-200 shadow-md flex flex-col h-screen">
+            <!-- Logo Area -->
+            <div class="p-4 border-b border-gray-200 flex items-center justify-center">
+                <div class="flex items-center">
+                    <div class="bg-primary text-white p-2 rounded-lg mr-3">
+                        <i class="fa-solid fa-robot text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-primary">AI Chat</h1>
+                </div>
+            </div>
+            
+            <!-- Menu List -->
+            <div class="flex-1 overflow-y-auto scrollbar-hide p-4">
+                <ul class="space-y-1">
+                    <li>
+                        <button data-page="messages" class="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-200 group menu-btn">
+                            <i class="fa-regular fa-message w-6 text-center mr-3 group-hover:text-primary"></i>
+                            <span>Messages</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button data-page="prompts" class="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-200 group menu-btn">
+                            <i class="fa-regular fa-lightbulb w-6 text-center mr-3 group-hover:text-primary"></i>
+                            <span>Prompts</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button data-page="history" class="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-200 group menu-btn">
+                            <i class="fa-regular fa-clock w-6 text-center mr-3 group-hover:text-primary"></i>
+                            <span>History</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button data-page="tools" class="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-200 group menu-btn">
+                            <i class="fa-solid fa-wrench w-6 text-center mr-3 group-hover:text-primary"></i>
+                            <span>MCP Tools</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button data-page="settings" class="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-200 group menu-btn">
+                            <i class="fa-solid fa-cog w-6 text-center mr-3 group-hover:text-primary"></i>
+                            <span>Settings</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- User Profile -->
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-center">
+                    <img src="https://picsum.photos/200/200?random=1" alt="User Avatar" class="w-10 h-10 rounded-full object-cover">
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900" id="profile-username">John Doe</p>
+                        <p class="text-xs text-gray-500">john.doe@example.com</p>
+                    </div>
+                    <button class="ml-auto text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-sign-out"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Content Area -->
+        <div class="flex-1 overflow-hidden flex flex-col" id="content-area">
+            <!-- Messages Page -->
+            <div id="messages-page" class="flex-1 flex flex-col">
+                <!-- Chat Messages Area -->
+                <div class="flex-1 overflow-y-auto p-6 bg-gray-50" id="chat-messages">
+                    <!-- System Message -->
+                    <div class="flex items-start mb-6 message-appear" data-id="msg-1">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary text-white p-2 rounded-lg">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3 max-w-[90%]">
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <p class="text-gray-800">Hello! I'm your AI assistant. How can I help you today?</p>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">AI • Just now</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Message Input Area -->
+                <div class="p-4 border-t border-gray-200 bg-white">
+                    <div class="flex flex-col">
+                        <!-- File Upload Area -->
+                        <div id="file-upload-area" class="mb-4 p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-primary transition-colors cursor-pointer">
+                            <input type="file" id="file-upload-input" class="hidden" multiple>
+                            <div class="py-4">
+                                <i class="fa-regular fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-500">Drag and drop files here or click to upload</p>
+                                <p class="text-xs text-gray-400 mt-1">Supports PDF, DOCX, TXT, Images (Max 10MB)</p>
+                            </div>
+                            <div id="uploaded-files" class="mt-3 flex flex-wrap gap-2"></div>
+                        </div>
+                        
+                        <div class="mb-4 relative">
+                            <textarea 
+                                id="message-input" 
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 resize-none pr-12" 
+                                rows="3" 
+                                placeholder="Type your message..."
+                            ></textarea>
+                            <button id="voice-input-btn" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary transition-colors">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="remember-history" class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
+                                    <span class="ml-2 text-sm text-gray-700">Remember history</span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center space-x-2">
+                                <button id="settings-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                                    <i class="fa-solid fa-sliders mr-1"></i> AI Param
+                                </button>
+                                <button id="clean-history-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                                    <i class="fa-regular fa-trash-can mr-1"></i> Clean
+                                </button>
+                                <button id="stream-send-btn" class="px-4 py-2 bg-secondary text-white hover:bg-secondary/90 rounded-lg transition-all duration-200">
+                                    <i class="fa-solid fa-stream mr-1"></i> Stream
+                                </button>
+                                <button id="send-btn" class="px-6 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                                    <i class="fa-solid fa-paper-plane mr-1"></i> Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prompts Page -->
+            <div id="prompts-page" class="flex-1 flex flex-col hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Prompts</h2>
+                        <button id="add-prompt-btn" class="px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+                            <i class="fa-regular fa-plus mr-2"></i> Add Prompt
+                        </button>
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="relative mb-6">
+                        <input 
+                            type="text" 
+                            id="prompt-search" 
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200" 
+                            placeholder="Search prompts..."
+                        >
+                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <i class="fa-solid fa-search"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Prompts List -->
+                    <div class="space-y-4">
+                        <!-- Prompt Item -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-primary">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1 mr-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Explain like I'm 5</h3>
+                                    <p class="text-gray-600 text-sm">Explain the concept in simple terms that a 5-year-old would understand.</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="p-2 text-gray-500 hover:text-primary transition-colors">
+                                        <i class="fa-regular fa-pencil"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Prompt Item -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-secondary">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1 mr-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Generate Code</h3>
+                                    <p class="text-gray-600 text-sm">Generate code snippets based on the given requirements.</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="p-2 text-gray-500 hover:text-primary transition-colors">
+                                        <i class="fa-regular fa-pencil"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Prompt Item -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-accent">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1 mr-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Summarize</h3>
+                                    <p class="text-gray-600 text-sm">Summarize the given text into key points and main ideas.</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="p-2 text-gray-500 hover:text-primary transition-colors">
+                                        <i class="fa-regular fa-pencil"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- History Page -->
+            <div id="history-page" class="flex-1 flex flex-col hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Chat History</h2>
+                        <div class="flex space-x-2">
+                            <button id="filter-history-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                                <i class="fa-regular fa-calendar mr-1"></i> Filter
+                            </button>
+                            <button id="export-history-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                                <i class="fa-regular fa-download mr-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- History List -->
+                    <div id="history-list" class="space-y-4">
+                        <!-- History Item -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-primary">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 mb-1">Project brainstorming</h3>
+                                    <p class="text-sm text-gray-500">May 14, 2025 • 10:30 AM</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="p-2 text-gray-500 hover:text-primary transition-colors">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- History Item -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-secondary">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 mb-1">Code review session</h3>
+                                    <p class="text-sm text-gray-500">May 13, 2025 • 2:15 PM</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="p-2 text-gray-500 hover:text-primary transition-colors">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- History Item -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-accent">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 mb-1">Data analysis</h3>
+                                    <p class="text-sm text-gray-500">May 12, 2025 • 9:45 AM</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="p-2 text-gray-500 hover:text-primary transition-colors">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MCP Tools Page -->
+            <div id="tools-page" class="flex-1 flex flex-col hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">MCP Tools</h2>
+                        <button id="refresh-tools-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                            <i class="fa-solid fa-refresh mr-1"></i> Refresh
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <p class="text-gray-600 mb-4">Manage and configure available AI tools and plugins.</p>
+                        
+                        <div class="space-y-4" id="tools-list">
+                            <!-- Tool Item -->
+                            <div class="p-4 border border-gray-200 rounded-lg hover:border-primary/50 transition-colors">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-primary mr-3">
+                                            <i class="fa-solid fa-code"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-medium text-gray-900">Code Interpreter</h3>
+                                            <p class="text-sm text-gray-500">Execute and debug code snippets</p>
+                                        </div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Tool Item -->
+                            <div class="p-4 border border-gray-200 rounded-lg hover:border-primary/50 transition-colors">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600 mr-3">
+                                            <i class="fa-solid fa-chart-line"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-medium text-gray-900">Data Analysis</h3>
+                                            <p class="text-sm text-gray-500">Analyze and visualize data</p>
+                                        </div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Tool Item -->
+                            <div class="p-4 border border-gray-200 rounded-lg hover:border-primary/50 transition-colors">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600 mr-3">
+                                            <i class="fa-solid fa-image"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-medium text-gray-900">Image Generation</h3>
+                                            <p class="text-sm text-gray-500">Create and edit images</p>
+                                        </div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Tool Item -->
+                            <div class="p-4 border border-gray-200 rounded-lg hover:border-primary/50 transition-colors">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 mr-3">
+                                            <i class="fa-solid fa-file-pdf"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-medium text-gray-900">Document Reader</h3>
+                                            <p class="text-sm text-gray-500">Extract and summarize text from documents</p>
+                                        </div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Page -->
+            <div id="settings-page" class="flex-1 flex flex-col hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Settings</h2>
+                        <button id="save-settings-btn" class="px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                            <i class="fa-regular fa-floppy-disk mr-1"></i> Save Settings
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Account Settings -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Account</h3>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                        <input type="text" id="setting-username" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200" value="John Doe">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                        <input type="email" id="setting-email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200" value="john.doe@example.com">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Avatar</label>
+                                        <div class="flex items-center">
+                                            <img src="https://picsum.photos/200/200?random=1" alt="User Avatar" class="w-12 h-12 rounded-full object-cover mr-4">
+                                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                                <i class="fa-regular fa-image mr-1"></i> Change
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- AI Settings -->
+                            <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">AI Configuration</h3>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">API Token</label>
+                                        <div class="relative">
+                                            <input type="password" id="api-token" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 pr-10" value="sk-********************************">
+                                            <button id="toggle-token" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                                <i class="fa-regular fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Default Model</label>
+                                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200">
+                                            <option>GPT-4</option>
+                                            <option selected>GPT-3.5</option>
+                                            <option>Claude</option>
+                                            <option>Llama 2</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Max Response Tokens</label>
+                                        <input type="number" id="max-tokens" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200" value="2048">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Temperature</label>
+                                        <div class="flex items-center">
+                                            <input type="range" min="0" max="1" step="0.1" value="0.7" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary">
+                                            <span class="ml-2 text-sm text-gray-500">0.7</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Settings -->
+                        <div>
+                            <!-- Privacy Settings -->
+                            <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Privacy</h3>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">Share history with AI developers</h4>
+                                            <p class="text-xs text-gray-500">Help improve AI models</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" checked class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">Auto-save conversations</h4>
+                                            <p class="text-xs text-gray-500">Save chats automatically</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" checked class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Notifications -->
+                            <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Notifications</h3>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">Desktop notifications</h4>
+                                            <p class="text-xs text-gray-500">Get notified for new messages</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">Sound notifications</h4>
+                                            <p class="text-xs text-gray-500">Play sound for new messages</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" checked class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900">AI Parameters Settings</h3>
+                    <button id="close-settings-btn" class="text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Model</label>
+                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200">
+                            <option>GPT-4</option>
+                            <option selected>GPT-3.5</option>
+                            <option>Claude</option>
+                            <option>Llama 2</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Temperature</label>
+                        <div class="flex items-center">
+                            <input type="range" min="0" max="1" step="0.1" value="0.7" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary">
+                            <span class="ml-2 text-sm text-gray-500">0.7</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Max Tokens</label>
+                        <input type="number" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200" value="2048">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Top P</label>
+                        <input type="number" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200" value="1">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Frequency Penalty</label>
+                        <input type="number" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200" value="0">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Presence Penalty</label>
+                        <input type="number" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200" value="0">
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button id="cancel-settings-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors mr-2">
+                        Cancel
+                    </button>
+                    <button id="confirm-settings-btn" class="px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- File Upload Preview Modal -->
+    <div id="file-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 transform transition-all duration-300 scale-95 opacity-0" id="file-modal-content">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900" id="file-modal-title">File Preview</h3>
+                    <button id="close-file-modal-btn" class="text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div id="file-preview-content"

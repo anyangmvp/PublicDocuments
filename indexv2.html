@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- Ant Design X -->
+    <script src="https://cdn.jsdelivr.net/npm/antd@5.10.0/dist/antd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.10.0/dist/antd.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#FF7D00',
+                        dark: '#1D2129',
+                        light: '#F2F3F5',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .message-appear {
+                animation: messageAppear 0.3s ease-out;
+            }
+            @keyframes messageAppear {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen flex flex-col">
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Left Sidebar -->
+        <div class="w-64 bg-white border-r border-gray-200 shadow-md flex flex-col h-screen">
+            <!-- Logo Area -->
+            <div class="p-4 border-b border-gray-200 flex items-center justify-center">
+                <div class="flex items-center">
+                    <div class="bg-primary text-white p-2 rounded-lg mr-3">
+                        <i class="fa-solid fa-robot text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-primary">AI Chat</h1>
+                </div>
+            </div>
+            
+            <!-- Menu List -->
+            <div class="flex-1 overflow-y-auto scrollbar-hide p-4">
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#messages" class="flex items-center px-4 py-3 text-gray-700 hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-200 group">
+                            <i class="fa-regular fa-message w-6 text-center mr-3 group-hover:text-primary"></i>
+                            <span>Messages</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#prompts" class="flex items-center px-4 py-3 text-gray-700 hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-200 group">
+                            <i class="fa-regular fa-lightbulb w-6 text-center mr-3 group-hover:text-primary"></i>
+                            <span>Prompts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#history" class="flex items-center px-4 py-3 text-gray-700 hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-200 group">
+                            <i class="fa-regular fa-clock w-6 text-center mr-3 group-hover:text-primary"></i>
+                            <span>History</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- User Profile -->
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-center">
+                    <img src="https://picsum.photos/200/200?random=1" alt="User Avatar" class="w-10 h-10 rounded-full object-cover">
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">John Doe</p>
+                        <p class="text-xs text-gray-500">john.doe@example.com</p>
+                    </div>
+                    <button class="ml-auto text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-sign-out"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Content Area -->
+        <div class="flex-1 overflow-hidden flex flex-col" id="content-area">
+            <!-- Messages Page -->
+            <div id="messages-page" class="flex-1 flex flex-col hidden">
+                <!-- Chat Messages Area -->
+                <div class="flex-1 overflow-y-auto p-6 bg-gray-50" id="chat-messages">
+                    <!-- System Message -->
+                    <div class="flex items-start mb-6 message-appear" data-id="msg-1">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary text-white p-2 rounded-lg">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3 max-w-[90%]">
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <p class="text-gray-800">Hello! I'm your AI assistant. How can I help you today?</p>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">AI • Just now</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Message Input Area -->
+                <div class="p-4 border-t border-gray-200 bg-white">
+                    <div class="flex flex-col">
+                        <div class="mb-4">
+                            <textarea 
+                                id="message-input" 
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 resize-none" 
+                                rows="3" 
+                                placeholder="Type your message..."
+                            ></textarea>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="remember-history" class="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary">
+                                    <span class="ml-2 text-sm text-gray-700">Remember history</span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center space-x-2">
+                                <button id="settings-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                                    <i class="fa-solid fa-sliders mr-1"></i> AI Param
+                                </button>
+                                <button id="clean-history-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                                    <i class="fa-regular fa-trash-can mr-1"></i> Clean
+                                </button>
+                                <button id="stream-send-btn" class="px-4 py-2 bg-secondary text-white hover:bg-secondary/90 rounded-lg transition-all duration-200">
+                                    <i class="fa-solid fa-stream mr-1"></i> Stream
+                                </button>
+                                <button id="send-btn" class="px-6 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                                    <i class="fa-solid fa-paper-plane mr-1"></i> Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prompts Page -->
+            <div id="prompts-page" class="flex-1 flex flex-col hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Prompts</h2>
+                        <button id="add-prompt-btn" class="px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+                            <i class="fa-regular fa-plus mr-2"></i> Add Prompt
+                        </button>
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="relative mb-6">
+                        <input 
+                            type="text" 
+                            id="prompt-search" 
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200" 
+                            placeholder="Search prompts..."
+                        >
+                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <i class="fa-solid fa-search"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Prompts List -->
+                    <div class="space-y-4">
+                        <!-- Prompt Item -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-primary">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1 mr-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Explain like I'm 5</h3>
+                                    <p class="text-gray-600 text-sm">Explain the concept in simple terms that a 5-year-old would understand.</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="p-2 text-gray-500 hover:text-primary transition-colors">
+                                        <i class="fa-regular fa-pencil"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Prompt Item -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-secondary">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1 mr-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Generate Code</h3>
+                                    <p class="text-gray-600 text-sm">Generate code snippets based on the given requirements.</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="p-2 text-gray-500 hover:text-primary transition-colors">
+                                        <i class="fa-regular fa-pencil"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Prompt Item -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-accent">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1 mr-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Summarize</h3>
+                                    <p class="text-gray-600 text-sm">Summarize the given text into key points and main ideas.</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="p-2 text-gray-500 hover:text-primary transition-colors">
+                                        <i class="fa-regular fa-pencil"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- History Page -->
+            <div id="history-page" class="flex-1 flex flex-col hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Chat History</h2>
+                        <div class="flex space-x-2">
+                            <button id="filter-history-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                                <i class="fa-regular fa-calendar mr-1"></i> Filter
+                            </button>
+                            <button id="export-history-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                                <i class="fa-regular fa-download mr-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- History List -->
+                    <div id="history-list" class="space-y-4">
+                        <!-- History items will be dynamically loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900">AI Parameters Settings</h3>
+                    <button id="close-settings-btn" class="text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Model</label>
+                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200">
+                            <option>GPT-4</option>
+                            <option>GPT-3.5</option>
+                            <option>Claude</option>
+                            <option>Llama 2</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Temperature</label>
+                        <div class="flex items-center">
+                            <input type="range" min="0" max="1" step="0.1" value="0.7" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary">
+                            <span class="ml-2 text-sm text-gray-500">0.7</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Max Tokens</label>
+                        <input type="number" value="2048" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Top P</label>
+                        <div class="flex items-center">
+                            <input type="range" min="0" max="1" step="0.1" value="0.8" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary">
+                            <span class="ml-2 text-sm text-gray-500">0.8</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button id="cancel-settings-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 mr-2">
+                        Cancel
+                    </button>
+                    <button id="save-settings-btn" class="px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                        Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Prompt Modal -->
+    <div id="add-prompt-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0" id="add-prompt-content">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900">Add New Prompt</h3>
+                    <button id="close-prompt-btn" class="text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input type="text" placeholder="Prompt Name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                        <textarea rows="4" placeholder="Type your prompt here..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 resize-none"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200">
+                            <option>General</option>
+                            <option>Programming</option>
+                            <option>Writing</option>
+                            <option>Research</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button id="cancel-prompt-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 mr-2">
+                        Cancel
+                    </button>
+                    <button id="save-prompt-btn" class="px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                        Save Prompt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create New Chat Modal -->
+    <div id="new-chat-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0" id="new-chat-content">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900">Create New Chat</h3>
+                    <button id="close-new-chat-btn" class="text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Chat Title</label>
+                        <input type="text" id="new-chat-title" placeholder="Enter chat title" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200">
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button id="cancel-new-chat-btn" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 mr-2">
+                        Cancel
+                    </button>
+                    <button id="create-new-chat-btn" class="px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                        Create Chat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize with messages page
+        document.getElementById('messages-page').classList.remove('hidden');
+        
+        // Load saved chats from localStorage
+        let chats = JSON.parse(localStorage.getItem('aiChats')) || [];
+        let currentChatId = localStorage.getItem('currentChatId') || null;
+        
+        // If no current chat, create a new one
+        if (!currentChatId) {
+            createNewChat('New Chat');
+        } else {
+            loadChat(currentChatId);
+        }
+        
+        // Load history list
+        loadHistoryList();
+        
+        // Navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                // Hide all pages
+                document.querySelectorAll('#content-area > div').forEach(page => {
+                    page.classList.add('hidden');
+                });
+                
+                // Show selected page
+                const target = this.getAttribute('href').substring(1);
+                document.getElementById(`${target}-page`).classList.remove('hidden');
+                
+                // Add active class to the current link
+                document.querySelectorAll('a[href^="#"]').forEach(link => {
+                    link.classList.remove('bg-primary/10', 'text-primary');
+                });
+                this.classList.add('bg-primary/10', 'text-primary');
+                
+                // Reload history list when history page is selected
+                if (target === 'history') {
+                    loadHistoryList();
+                }
+            });
+        });
+        
+        // Settings Modal
+        const settingsModal = document.getElementById('settings-modal');
+        const modalContent = document.getElementById('modal-content');
+        
+        document.getElementById('settings-btn').addEventListener('click', () => {
+            settingsModal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        });
+        
+        function closeSettingsModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                settingsModal.classList.add('hidden');
+            }, 300);
+        }
+        
+        document.getElementById('close-settings-btn').addEventListener('click', closeSettingsModal);
+        document.getElementById('cancel-settings-btn').addEventListener('click', closeSettingsModal);
+        document.getElementById('save-settings-btn').addEventListener('click', closeSettingsModal);
+        
+        // Add Prompt Modal
+        const addPromptModal = document.getElementById('add-prompt-modal');
+        const addPromptContent = document.getElementById('add-prompt-content');
+        
+        document.getElementById('add-prompt-btn').addEventListener('click', () => {
+            addPromptModal.classList.remove('hidden');
+            setTimeout(() => {
+                addPromptContent.classList.remove('scale-95', 'opacity-0');
+                addPromptContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        });
+        
+        function closeAddPromptModal() {
+            addPromptContent.classList.remove('scale-100', 'opacity-100');
+            addPromptContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                addPromptModal.classList.add('hidden');
+            }, 300);
+        }
+        
+        document.getElementById('close-prompt-btn').addEventListener('click', closeAddPromptModal);
+        document.getElementById('cancel-prompt-btn').addEventListener('click', closeAddPromptModal);
+        document.getElementById('save-prompt-btn').addEventListener('click', closeAddPromptModal);
+        
+        // New Chat Modal
+        const newChatModal = document.getElementById('new-chat-modal');
+        const newChatContent = document.getElementById('new-chat-content');
+        
+        // Open new chat modal when clicking on the history title
+        document.querySelector('#history-page h2').addEventListener('click', () => {
+            newChatModal.classList.remove('hidden');
+            setTimeout(() => {
+                newChatContent.classList.remove('scale-95', 'opacity-0');
+                newChatContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        });
+        
+        function closeNewChatModal() {
+            newChatContent.classList.remove('scale-100', 'opacity-100');
+            newChatContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                newChatModal.classList.add('hidden');
+            }, 300);
+        }
+        
+        document.getElementById('close-new-chat-btn').addEventListener('click', closeNewChatModal);
+        document.getElementById('cancel-new-chat-btn').addEventListener('click', closeNewChatModal);
+        
+        document.getElementById('create-new-chat-btn').addEventListener('click', () => {
+            const title = document.getElementById('new-chat-title').value.trim() || 'New Chat';
+            createNewChat(title);
+            closeNewChatModal();
+        });
+        
+        // Send Message
+        document.getElementById('send-btn').addEventListener('click', () => {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            
+            if (message) {
+                // Add user message to chat
+                addMessageToChat('user', message);
+                
+                // Clear input
+                messageInput.value = '';
+                
+                // Scroll to bottom
+                scrollToBottom();
+                
+                // Show loading indicator (simulate AI response)
+                addLoadingIndicator();
+                
+                // Simulate AI response after delay
+                setTimeout(() => {
+                    // Remove loading indicator
+                    removeLoadingIndicator();
+                    
+                    // Add AI response
+                    const aiResponse = "Thank you for your message! I'm an AI assistant designed to help with a variety of tasks. How can I assist you today?";
+                    addMessageToChat('ai', aiResponse);
+                    
+                    // Scroll to bottom
+                    scrollToBottom();
+                }, 1500);
+            }
+        });
+        
+        // Clean History
+        document.getElementById('clean-history-btn').addEventListener('click', () => {
+            if (currentChatId) {
+                // Find the current chat
+                const chatIndex = chats.findIndex(chat => chat.id === currentChatId);
+                
+                if (chatIndex !== -1) {
+                    // Clear messages but keep the chat
+                    chats[chatIndex].messages = [];
+                    localStorage.setItem('aiChats', JSON.stringify(chats));
+                    
+                    // Reload the chat
+                    loadChat(currentChatId);
+                }
+            }
+        });
+        
+        // Stream Send (simulation)
+        document.getElementById('stream-send-btn').addEventListener('click', () => {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            
+            if (message) {
+                // Add user message to chat
+                addMessageToChat('user', message);
+                
+                // Clear input
+                messageInput.value = '';
+                
+                // Scroll to bottom
+                scrollToBottom();
+                
+                // Show loading indicator (simulate streaming response)
+                const loadingId = addLoadingIndicator(true);
+                
+                // Simulate streaming response
+                const streamResponse = "Thank you for your message! I'm an AI assistant designed to help with a variety of tasks. How can I assist you today?";
+                let i = 0;
+                let streamMessage = '';
+                
+                const streamInterval = setInterval(() => {
+                    if (i < streamResponse.length) {
+                        streamMessage += streamResponse.charAt(i);
+                        i++;
+                        
+                        // Update the message
+                        updateMessage(loadingId, streamMessage);
+                        
+                        // Scroll to bottom
+                        scrollToBottom();
+                    } else {
+                        clearInterval(streamInterval);
+                        // Remove loading dots
+                        updateMessage(loadingId, streamMessage, false);
+                        
+                        // Save the final message
+                        saveMessage('ai', streamMessage);
+                    }
+                }, 50);
+            }
+        });
+        
+        // Export History
+        document.getElementById('export-history-btn').addEventListener('click', () => {
+            if (currentChatId) {
+                const chat = chats.find(chat => chat.id === currentChatId);
+                
+                if (chat && chat.messages.length > 0) {
+                    // Create a text representation of the chat
+                    let chatText = `Chat: ${chat.title}\n\n`;
+                    
+                    chat.messages.forEach(msg => {
+                        const sender = msg.sender === 'user' ? 'You' : 'AI';
+                        const timestamp = new Date(msg.timestamp).toLocaleString();
+                        
+                        chatText += `${sender} (${timestamp}):\n${msg.content}\n\n`;
+                    });
+                    
+                    // Create a blob and download
+                    const blob = new Blob([chatText], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${chat.title.replace(/\s+/g, '_')}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+            }
+        });
+        
+        // Filter History (show modal or implement filtering)
+        document.getElementById('filter-history-btn').addEventListener('click', () => {
+            alert('Filter functionality coming soon!');
+        });
+        
+        // Helper functions for chat history
+        function createNewChat(title) {
+            const newChat = {
+                id: Date.now().toString(),
+                title: title,
+                createdAt: new Date().toISOString(),
+                messages: []
+            };
+            
+            chats.push(newChat);
+            localStorage.setItem('aiChats', JSON.stringify(chats));
+            currentChatId = newChat.id;
+            localStorage.setItem('currentChatId', currentChatId);
+            
+            // Load the new chat
+            loadChat(currentChatId);
+            
+            // Show messages page
+            document.querySelectorAll('#content-area > div').forEach(page => {
+                page.classList.add('hidden');
+            });
+            document.getElementById('messages-page').classList.remove('hidden');
+            
+            // Add active class to messages link
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.classList.remove('bg-primary/10', 'text-primary');
+            });
+            document.querySelector('a[href="#messages"]').classList.add('bg-primary/10', 'text-primary');
+        }
+        
+        function loadChat(chatId) {
+            const chat = chats.find(chat => chat.id === chatId);
+            
+            if (chat) {
+                // Update current chat ID
+                currentChatId = chatId;
+                localStorage.setItem('currentChatId', currentChatId);
+                
+                // Clear existing messages
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = '';
+                
+                // Add system message if no messages exist
+                if (chat.messages.length === 0) {
+                    const systemMessage = {
+                        id: 'msg-1',
+                        sender: 'ai',
+                        content: 'Hello! I\'m your AI assistant. How can I help you today?',
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    addMessageElement(systemMessage);
+                } else {
+                    // Add all messages from history
+                    chat.messages.forEach(msg => {
+                        addMessageElement(msg);
+                    });
+                }
+                
+                // Scroll to bottom
+                scrollToBottom();
+            }
+        }
+        
+        function loadHistoryList() {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            
+            if (chats.length === 0) {
+                historyList.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+                        <div class="text-gray-400 mb-3">
+                            <i class="fa-regular fa-folder-open text-4xl"></i>
+                        </div>
+                        <p class="text-gray-600">No chat history found.</p>
+                        <button id="create-first-chat" class="mt-4 px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                            Start New Chat
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('create-first-chat').addEventListener('click', () => {
+                    createNewChat('New Chat');
+                });
+            } else {
+                // Sort chats by created date (newest first)
+                const sortedChats = [...chats].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                sortedChats.forEach(chat => {
+                    const lastMessage = chat.messages.length > 0 ? 
+                        chat.messages[chat.messages.length - 1].content.substring(0, 50) + '...' : 
+                        'Start a conversation';
+                    
+                    const lastMessageTime = chat.messages.length > 0 ? 
+                        new Date(chat.messages[chat.messages.length - 1].timestamp).toLocaleString() : 
+                        new Date(chat.createdAt).toLocaleString();
+                    
+                    const isActive = chat.id === currentChatId;
+                    
+                    const historyItem = document.createElement('div');
+                    historyItem.className = `bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:bg-gray-50 ${isActive ? 'border-l-4 border-primary' : ''}`;
+                    historyItem.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-semibold text-gray-900">${chat.title}</h3>
+                                <p class="text-gray-500 text-sm mt-1 line-clamp-1">${lastMessage}</p>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <span class="text-xs text-gray-400">${lastMessageTime}</span>
+                                <div class="flex space-x-1 mt-2">
+                                    <button class="p-1 text-gray-400 hover:text-primary transition-colors chat-edit-btn" data-id="${chat.id}">
+                                        <i class="fa-regular fa-pencil"></i>
+                                    </button>
+                                    <button class="p-1 text-gray-400 hover:text-red-500 transition-colors chat-delete-btn" data-id="${chat.id}">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    historyList.appendChild(historyItem);
+                    
+                    // Add click event to load chat
+                    historyItem.addEventListener('click', (e) => {
+                        if (!e.target.closest('.chat-edit-btn') && !e.target.closest('.chat-delete-btn')) {
+                            loadChat(chat.id);
+                            
+                            // Show messages page
+                            document.querySelectorAll('#content-area > div').forEach(page => {
+                                page.classList.add('hidden');
+                            });
+                            document.getElementById('messages-page').classList.remove('hidden');
+                            
+                            // Add active class to messages link
+                            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                                link.classList.remove('bg-primary/10', 'text-primary');
+                            });
+                            document.querySelector('a[href="#messages"]').classList.add('bg-primary/10', 'text-primary');
+                        }
+                    });
+                    
+                    // Add edit button functionality
+                    historyItem.querySelector('.chat-edit-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const newTitle = prompt('Edit chat title:', chat.title);
+                        if (newTitle && newTitle.trim() !== '') {
+                            chat.title = newTitle.trim();
+                            localStorage.setItem('aiChats', JSON.stringify(chats));
+                            loadHistoryList();
+                        }
+                    });
+                    
+                    // Add delete button functionality
+                    historyItem.querySelector('.chat-delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (confirm(`Are you sure you want to delete "${chat.title}"?`)) {
+                            const index = chats.findIndex(c => c.id === chat.id);
+                            if (index !== -1) {
+                                chats.splice(index, 1);
+                                localStorage.setItem('aiChats', JSON.stringify(chats));
+                                
+                                if (currentChatId === chat.id) {
+                                    // If deleting current chat, create a new one
+                                    if (chats.length > 0) {
+                                        loadChat(chats[0].id);
+                                    } else {
+                                        createNewChat('New Chat');
+                                    }
+                                }
+                                
+                                loadHistoryList();
+                            }
+                        }
+                    });
+                });
+            }
+        }
+        
+        function addMessageToChat(sender, content) {
+            const message = {
+                id: Date.now().toString(),
+                sender: sender,
+                content: content,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Add message to DOM
+            addMessageElement(message);
+            
+            // Save message to history
+            saveMessage(sender, content, message.id);
+        }
+        
+        function addMessageElement(message) {
+            const chatMessages = document.getElementById('chat-messages');
+            const isUser = message.sender === 'user';
+            const timestamp = new Date(message.timestamp).toLocaleString();
+            
+            let messageHtml = '';
+            
+            if (isUser) {
+                messageHtml = `
+                    <div class="flex items-start justify-end mb-6 message-appear" data-id="${message.id}">
+                        <div class="mr-3 max-w-[90%]">
+                            <div class="bg-primary text-white p-4 rounded-lg shadow-sm">
+                                <p>${message.content}</p>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1 text-right">You • ${timestamp}</div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <img src="https://picsum.photos/200/200?random=1" alt="User Avatar" class="w-8 h-8 rounded-full object-cover">
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageHtml = `
+                    <div class="flex items-start mb-6 message-appear" data-id="${message.id}">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary text-white p-2 rounded-lg">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3 max-w-[90%]">
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <p class="text-gray-800">${message.content}</p>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">AI • ${timestamp}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            chatMessages.insertAdjacentHTML('beforeend', messageHtml);
+        }
+        
+        function saveMessage(sender, content, id = null) {
+            if (!currentChatId) return;
+            
+            const chatIndex = chats.findIndex(chat => chat.id === currentChatId);
+            
+            if (chatIndex !== -1) {
+                const message = {
+                    id: id || Date.now().toString(),
+                    sender: sender,
+                    content: content,
+                    timestamp: new Date().toISOString()
+                };
+                
+                chats[chatIndex].messages.push(message);
+                localStorage.setItem('aiChats', JSON.stringify(chats));
+                
+                // Update the chat title based on the first message
+                if (chats[chatIndex].messages.length === 1 && sender === 'user') {
+                    const title = content.length > 20 ? content.substring(0, 20) + '...' : content;
+                    chats[chatIndex].title = title;
+                    localStorage.setItem('aiChats', JSON.stringify(chats));
+                    loadHistoryList();
+                }
+            }
+        }
+        
+        function addLoadingIndicator(isStreaming = false) {
+            const chatMessages = document.getElementById('chat-messages');
+            const loadingId = `loading-${Date.now()}`;
+            
+            let loadingHtml = '';
+            
+            if (isStreaming) {
+                loadingHtml = `
+                    <div class="flex items-start mb-6 message-appear" data-id="${loadingId}">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary text-white p-2 rounded-lg">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3 max-w-[90%]">
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <div id="${loadingId}-content" class="text-gray-800"></div>
+                                <div class="animate-pulse flex space-x-2 mt-2">
+                                    <div class="h-2 bg-gray-200 rounded-full w-2"></div>
+                                    <div class="h-2 bg-gray-200 rounded-full w-2"></div>
+                                    <div class="h-2 bg-gray-200 rounded-full w-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                loadingHtml = `
+                    <div class="flex items-start mb-6 message-appear" id="loading-indicator">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary text-white p-2 rounded-lg">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3 max-w-[90%]">
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <div class="animate-pulse flex space-x-2">
+                                    <div class="h-2 bg-gray-200 rounded-full w-2"></div>
+                                    <div class="h-2 bg-gray-200 rounded-full w-2"></div>
+                                    <div class="h-2 bg-gray-200 rounded-full w-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            chatMessages.insertAdjacentHTML('beforeend', loadingHtml);
+            return loadingId;
+        }
+        
+        function removeLoadingIndicator() {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.remove();
+            }
+        }
+        
+        function updateMessage(messageId, content, isLoading = true) {
+            const messageElement = document.querySelector(`[data-id="${messageId}"]`);
+            if (messageElement) {
+                const contentElement = messageElement.querySelector(`#${messageId}-content`);
+                if (contentElement) {
+                    contentElement.textContent = content;
+                }
+                
+                // Remove loading dots if specified
+                if (!isLoading) {
+                    const loadingDots = contentElement.nextElementSibling;
+                    if (loadingDots && loadingDots.classList.contains('animate-pulse')) {
+                        loadingDots.remove();
+                    }
+                }
+            }
+        }
+        
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Make textarea auto-resize
+        const textarea = document.getElementById('message-input');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    </script>
+</body>
+</html>
+    
