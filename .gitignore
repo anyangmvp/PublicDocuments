@@ -1,0 +1,8 @@
+# 忽略archives目录
+archives/
+
+# 忽略生成的压缩文件
+*.zip
+*.tar.gz
+*.tar.bz2
+*.7z

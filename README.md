@@ -24,7 +24,7 @@
 python github_archiver.py compress https://github.com/anthropics/skills -o skills
 
 # 自定义代理
-python github_archiver.py compress https://github.com/anthropics/skills -o skills --proxy http://127.0.0.1:7890
+python github_archiver.py compress https://github.com/anthropics/skills -o skills --proxy http://127.0.0.1:10808
 
 # 不使用代理
 python github_archiver.py compress https://github.com/anthropics/skills -o skills --proxy ""
@@ -50,10 +50,10 @@ python github_archiver.py extract archives/my-project.b64.txt -d ./restored
 
 ```bash
 # 发布到指定目录
-python github_archiver.py compress https://github.com/anthropics/skills -o skills -p C:\Users\Steph\Desktop\test\PublicDocuments
+python github_archiver.py compress https://github.com/anthropics/skills -o skills -p C:\Users\Steph\Desktop\PublicDocuments
 
 # 指定提交消息
-python github_archiver.py compress https://github.com/anthropics/skills -o skills -p C:\Users\Steph\Desktop\test\PublicDocuments -m "添加归档"
+python github_archiver.py compress https://github.com/anthropics/skills -o skills -p C:\Users\Steph\Desktop\PublicDocuments -m "添加归档"
 ```
 
 ---
