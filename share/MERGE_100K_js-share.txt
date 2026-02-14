@@ -1,0 +1,3155 @@
+===MERGE_INFO:folder=js-share===
+
+===FILE:public\index.html===
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevToolkit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #1a1a24;
+      --bg-card-hover: #22222e;
+      --accent-primary: #6366f1;
+      --accent-secondary: #818cf8;
+      --accent-success: #10b981;
+      --accent-warning: #f59e0b;
+      --accent-error: #ef4444;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: #2d2d3a;
+      --glass-bg: rgba(26, 26, 36, 0.8);
+      --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --accent-primary: #4f46e5;
+      --accent-secondary: #6366f1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      --glass-bg: rgba(255, 255, 255, 0.9);
+      --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse 80% 50% at 20% -20%, rgba(99, 102, 241, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.1), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    [data-theme="light"] body::before {
+      background: 
+        radial-gradient(ellipse 80% 50% at 20% -20%, rgba(79, 70, 229, 0.1), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.08), transparent);
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 300;
+      margin-top: 8px;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-card);
+    }
+
+    .theme-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .theme-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .settings-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s ease;
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .settings-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .settings-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(99, 102, 241, 0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-primary);
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-group label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    input[type="text"].long-input {
+      width: 100%;
+    }
+
+    input[type="password"] {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    input[type="password"]:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .checkbox-wrapper:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .checkbox-wrapper input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-primary);
+      cursor: pointer;
+    }
+
+    .checkbox-wrapper span {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), #4f46e5);
+      color: white;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--accent-success), #059669);
+      color: white;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+      color: white;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+    }
+
+    .btn-accent:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: var(--bg-secondary);
+      padding: 6px;
+      border-radius: 14px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 14px 20px;
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .tab:hover:not(.active) {
+      color: var(--text-secondary);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s ease;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .card-icon.github { background: rgba(16, 185, 129, 0.15); }
+    .card-icon.compress { background: rgba(99, 102, 241, 0.15); }
+    .card-icon.extract { background: rgba(6, 182, 212, 0.15); }
+
+    .card-title h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .card-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .file-input-wrapper {
+      display: flex;
+      gap: 10px;
+    }
+
+    .file-input-wrapper input {
+      flex: 1;
+    }
+
+    .file-input-wrapper .btn {
+      white-space: nowrap;
+    }
+
+    .note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-group .btn {
+      width: 100%;
+    }
+
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+
+    .status-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status-spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border-color);
+      border-top-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .status-bar.loading .status-spinner {
+      display: block;
+    }
+
+    .status-bar.loading .status-dot {
+      display: none;
+    }
+
+    .toast {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast.success { background: linear-gradient(135deg, var(--accent-success), #059669); }
+    .toast.error { background: linear-gradient(135deg, var(--accent-error), #dc2626); }
+    .toast.warning { background: linear-gradient(135deg, var(--accent-warning), #d97706); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .main-content {
+      padding-bottom: 80px;
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-box {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 1300px;
+      margin: 0 24px;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.9) translateY(20px);
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .modal-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .modal-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .modal-input {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      margin-bottom: 20px;
+    }
+
+    .modal-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .modal-actions .btn {
+      padding: 12px 24px;
+      min-width: 100px;
+    }
+
+    /* Log panel styles */
+    .log-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      z-index: 1500;
+      display: flex;
+    }
+
+    .log-trigger {
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+      cursor: pointer;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.6;
+    }
+
+    .log-trigger:hover {
+      width: 10px;
+      opacity: 1;
+    }
+
+    .log-trigger-icon {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      color: white;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .log-trigger:hover .log-trigger-icon {
+      opacity: 1;
+    }
+
+    .log-content {
+      width: 0;
+      height: 100%;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .log-panel:hover .log-content {
+      width: 1300px;
+    }
+
+    .log-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .log-header h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .log-header-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .log-clear-btn {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .log-clear-btn:hover {
+      background: var(--accent-error);
+      border-color: var(--accent-error);
+      color: white;
+    }
+
+    .log-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .log-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .log-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .log-list::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    .log-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      animation: logSlideIn 0.3s ease;
+    }
+
+    @keyframes logSlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .log-item-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .log-item-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .log-item-icon.clone { background: rgba(16, 185, 129, 0.15); }
+    .log-item-icon.download { background: rgba(6, 182, 212, 0.15); }
+    .log-item-icon.compress { background: rgba(99, 102, 241, 0.15); }
+    .log-item-icon.extract { background: rgba(245, 158, 11, 0.15); }
+
+    .log-item-type {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+
+    .log-item-time {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .log-item-message {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .log-item-path {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent-secondary);
+      word-break: break-all;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .log-item-path:hover {
+      background: var(--bg-card);
+      border-color: var(--accent-primary);
+    }
+
+    .log-item-path-icon {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .log-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .log-empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .log-empty-text {
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <span class="theme-icon" id="themeIcon">🌙</span>
+    <span class="theme-text" id="themeText">Dark</span>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <h1>DevToolkit</h1>
+      </div>
+      <p class="subtitle">Developer Utilities Suite</p>
+    </header>
+
+    <div class="settings-card">
+      <div class="settings-header">
+        <div class="settings-icon">⚙</div>
+        <h2>Settings</h2>
+      </div>
+      <div class="settings-grid">
+        <div class="input-group">
+          <label>Parent Folder</label>
+          <div class="input-wrapper">
+            <input type="text" id="parentFolder" placeholder="ABC folder">
+            <button class="btn btn-secondary" onclick="browseFolder('parentFolder')">Browse</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-group" style="margin-top: 12px;">
+        <label>Clone Proxy (Home only)</label>
+        <div id="proxySection" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <label class="checkbox-wrapper" style="background: transparent; padding: 6px 10px;">
+            <input type="checkbox" id="proxyEnabled">
+            <span>Enable</span>
+          </label>
+          <input type="text" id="proxyAddress" placeholder="127.0.0.1" style="width: 100px; text-align: center;">
+          <input type="text" id="proxyPort" placeholder="Port" style="width: 60px; text-align: center;">
+          <input type="text" id="proxyUser" placeholder="Username" style="width: 100px;">
+          <input type="password" id="proxyPass" placeholder="Password" style="width: 100px;">
+        </div>
+      </div>
+      <div class="input-group" style="margin-top: 12px;">
+        <label>Download Proxy (Company only)</label>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <label class="checkbox-wrapper" style="background: transparent; padding: 6px 10px;">
+            <input type="checkbox" id="downloadProxyEnabled">
+            <span>Enable</span>
+          </label>
+          <input type="text" id="downloadProxyAddress" placeholder="127.0.0.1" style="width: 100px; text-align: center;">
+          <input type="text" id="downloadProxyPort" placeholder="Port" style="width: 60px; text-align: center;">
+          <input type="text" id="downloadProxyUser" placeholder="Username" style="width: 100px;">
+          <input type="password" id="downloadProxyPass" placeholder="Password" style="width: 100px;">
+        </div>
+      </div>
+      <div style="margin-top: 16px; text-align: right;">
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab" data-tab="github">GitHub Clone</button>
+      <button class="tab" data-tab="download">Download</button>
+      <button class="tab" data-tab="compress">Compress</button>
+      <button class="tab" data-tab="extract">Extract</button>
+    </div>
+
+    <div class="main-content">
+      <div class="tab-content" id="github-tab">
+        <div class="card">
+          <div class="card-title">
+            <div class="card-icon github">📦</div>
+            <div>
+              <h3>Clone Repository</h3>
+              <p>Clone a GitHub repository to your local folder</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Repository URL</label>
+            <input type="text" id="githubUrl" class="long-input" placeholder="https://github.com/username/repository.git">
+            <p class="note">Example: https://github.com/facebook/react.git</p>
+          </div>
+          <button class="btn btn-success" style="width: 100%;" onclick="cloneRepo()" id="cloneBtn">
+            Clone Repository
+          </button>
+        </div>
+      </div>
+
+      <div class="tab-content" id="download-tab">
+        <div class="card">
+          <div class="card-title">
+            <div class="card-icon github">📥</div>
+            <div>
+              <h3>Download File</h3>
+              <p>Download a single file from GitHub</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>File URL</label>
+            <input type="text" id="downloadUrl" class="long-input" placeholder="https://github.com/username/repo/blob/main/file.txt">
+            <p class="note">Will be converted to raw URL automatically</p>
+          </div>
+          <button class="btn btn-success" style="width: 100%;" onclick="downloadFile()" id="downloadBtn">
+            Download File
+          </button>
+        </div>
+      </div>
+
+      <div class="tab-content" id="compress-tab">
+        <div class="card">
+          <div class="card-title">
+            <div class="card-icon compress">📁</div>
+            <div>
+              <h3>Compress Folder</h3>
+              <p>Package folder to portable format</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Source Folder</label>
+            <div class="file-input-wrapper">
+              <input type="text" id="compressSource" placeholder="Select folder to compress">
+              <button class="btn btn-secondary" onclick="browseFolder('compressSource')">Browse</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Output Folder</label>
+            <div class="file-input-wrapper">
+              <input type="text" id="compressOutput" placeholder="Select output folder">
+              <button class="btn btn-secondary" onclick="browseFolder('compressOutput')">Browse</button>
+            </div>
+            <p class="note">Note: Excludes .git, node_modules, target, build, __pycache__, etc.</p>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="compressZipBase64()" id="zipBtn">
+              ZIP + Base64
+            </button>
+            <button class="btn btn-accent" onclick="compressTxt()" id="txtBtn">
+              Merge to TXT
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="extract-tab">
+        <div class="card">
+          <div class="card-title">
+            <div class="card-icon extract">📤</div>
+            <div>
+              <h3>Extract Files</h3>
+              <p>Extract files from archive</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Input File</label>
+            <div class="file-input-wrapper">
+              <input type="text" id="extractInput" placeholder="Select file to extract">
+              <button class="btn btn-secondary" onclick="browseFile('extractInput')">Browse</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Output Folder</label>
+            <div class="file-input-wrapper">
+              <input type="text" id="extractOutput" placeholder="Select output folder">
+              <button class="btn btn-secondary" onclick="browseFolder('extractOutput')">Browse</button>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="extractZipBase64()" id="extractZipBtn">
+              Extract ZIP+Base64
+            </button>
+            <button class="btn btn-accent" onclick="extractTxt()" id="extractTxtBtn">
+              Extract TXT
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar" id="statusBar">
+    <div class="status-text">
+      <div class="status-spinner"></div>
+      <div class="status-dot"></div>
+      <span id="statusText">Ready</span>
+    </div>
+    <div style="font-size: 0.8rem; color: var(--text-muted);">
+      Folders: <span id="folderInfo">-</span>
+    </div>
+  </div>
+
+  <!-- Modal dialog -->
+  <div class="modal-overlay" id="pathModal" onclick="if(event.target === this) closeModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon" id="modalIcon">📁</div>
+        <div>
+          <div class="modal-title" id="modalTitle">Select Folder</div>
+          <div class="modal-subtitle" id="modalSubtitle">Please enter the path</div>
+        </div>
+      </div>
+      <input type="text" class="modal-input" id="modalInput" placeholder="Enter path...">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmModal()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log panel -->
+  <div class="log-panel" id="logPanel">
+    <div class="log-trigger">
+      <span class="log-trigger-icon">LOGS</span>
+    </div>
+    <div class="log-content">
+      <div class="log-header">
+        <h3>
+          <div class="log-header-icon">📋</div>
+          Operation Logs
+        </h3>
+        <button class="log-clear-btn" onclick="clearLogs()">Clear All</button>
+      </div>
+      <div class="log-list" id="logList">
+        <div class="log-empty" id="logEmpty">
+          <div class="log-empty-icon">📭</div>
+          <div class="log-empty-text">No operation records</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '';
+    let config = {};
+
+    // Get input value and automatically remove surrounding quotes
+    function getInputValue(inputId) {
+      const element = document.getElementById(inputId);
+      if (!element) return '';
+      let value = element.value.trim();
+      // Auto remove surrounding quotes from path
+      if ((value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))) {
+        value = value.slice(1, -1);
+      }
+      return value;
+    }
+
+    // Log system
+    const LOG_STORAGE_KEY = 'devtoolkit_logs';
+    const MAX_LOGS = 100;
+
+    const LOG_TYPES = {
+      clone: { icon: '📦', label: 'GitHub Clone', cssClass: 'clone' },
+      download: { icon: '📥', label: 'File Download', cssClass: 'download' },
+      'compress-zip': { icon: '🗜️', label: 'ZIP+Base64 Compress', cssClass: 'compress' },
+      'compress-txt': { icon: '📄', label: 'TXT Merge', cssClass: 'compress' },
+      'extract-zip': { icon: '📤', label: 'ZIP+Base64 Extract', cssClass: 'extract' },
+      'extract-txt': { icon: '📝', label: 'TXT Extract', cssClass: 'extract' }
+    };
+
+    function getLogs() {
+      try {
+        return JSON.parse(localStorage.getItem(LOG_STORAGE_KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveLogs(logs) {
+      localStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(logs));
+    }
+
+    function addLog(type, message, path) {
+      const logs = getLogs();
+      const logType = LOG_TYPES[type] || { icon: '📌', label: 'Operation', cssClass: '' };
+
+      const newLog = {
+        id: Date.now(),
+        type: type,
+        icon: logType.icon,
+        label: logType.label,
+        cssClass: logType.cssClass,
+        message: message,
+        path: path || '',
+        time: new Date().toLocaleString('zh-CN', {
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        })
+      };
+
+      logs.unshift(newLog);
+      if (logs.length > MAX_LOGS) {
+        logs.pop();
+      }
+      saveLogs(logs);
+      renderLogs();
+    }
+
+    function clearLogs() {
+      localStorage.removeItem(LOG_STORAGE_KEY);
+      renderLogs();
+    }
+
+    function copyPath(path) {
+      navigator.clipboard.writeText(path).then(() => {
+        showToast('Path copied to clipboard');
+      }).catch(() => {
+        // Fallback method
+        const textarea = document.createElement('textarea');
+        textarea.value = path;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('Path copied to clipboard');
+      });
+    }
+
+    function renderLogs() {
+      const logs = getLogs();
+      const logList = document.getElementById('logList');
+      const logEmpty = document.getElementById('logEmpty');
+
+      if (logs.length === 0) {
+        logList.innerHTML = `
+          <div class="log-empty" id="logEmpty">
+            <div class="log-empty-icon">📭</div>
+            <div class="log-empty-text">No operation records</div>
+          </div>
+        `;
+        return;
+      }
+
+      logList.innerHTML = logs.map(log => `
+        <div class="log-item">
+          <div class="log-item-header">
+            <div class="log-item-icon ${log.cssClass}">${log.icon}</div>
+            <span class="log-item-type">${log.label}</span>
+            <span class="log-item-time">${log.time}</span>
+          </div>
+          <div class="log-item-message">${log.message}</div>
+          ${log.path ? `
+            <div class="log-item-path" onclick="copyPath('${log.path.replace(/\\/g, '\\\\')}')" title="Click to copy path">
+              <span class="log-item-path-icon">📋</span>
+              <span>${log.path}</span>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    // Load logs on initialization
+    renderLogs();
+
+    function getTheme() {
+      return localStorage.getItem('theme') || 'dark';
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      document.getElementById('themeIcon').textContent = theme === 'dark' ? '🌙' : '☀️';
+      document.getElementById('themeText').textContent = theme === 'dark' ? 'Dark' : 'Light';
+    }
+
+    function toggleTheme() {
+      const current = getTheme();
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    setTheme(getTheme());
+
+    async function api(endpoint, options = {}) {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers
+        }
+      });
+      return response.json();
+    }
+
+    async function init() {
+      // Load from localStorage first
+      const stored = JSON.parse(localStorage.getItem('devtoolkit_config') || '{}');
+      
+      const systemInfo = await api('/api/system-info');
+      const isNumericUsername = systemInfo.isNumericUsername;
+      
+      // Merge stored with defaults
+      config = {
+        parent_folder: stored.parent_folder || 'ABC folder',
+        proxy_enabled: stored.proxy_enabled || false,
+        proxy_address: stored.proxy_address || '127.0.0.1',
+        proxy_port: stored.proxy_port || 10808,
+        proxy_user: stored.proxy_user || '',
+        proxy_pass: stored.proxy_pass || '',
+        download_proxy_enabled: stored.download_proxy_enabled || false,
+        download_proxy_address: stored.download_proxy_address || '127.0.0.1',
+        download_proxy_port: stored.download_proxy_port || 10808,
+        download_proxy_user: stored.download_proxy_user || '',
+        download_proxy_pass: stored.download_proxy_pass || ''
+      };
+      
+      document.getElementById('parentFolder').value = config.parent_folder;
+      document.getElementById('proxyEnabled').checked = config.proxy_enabled;
+      document.getElementById('proxyAddress').value = config.proxy_address;
+      document.getElementById('proxyPort').value = config.proxy_port;
+      document.getElementById('proxyUser').value = config.proxy_user;
+      document.getElementById('proxyPass').value = config.proxy_pass;
+      document.getElementById('downloadProxyEnabled').checked = config.download_proxy_enabled;
+      document.getElementById('downloadProxyAddress').value = config.download_proxy_address;
+      document.getElementById('downloadProxyPort').value = config.download_proxy_port;
+      document.getElementById('downloadProxyUser').value = config.download_proxy_user;
+      document.getElementById('downloadProxyPass').value = config.download_proxy_pass;
+      
+      const folders = await api(`/api/folders?parent=${encodeURIComponent(config.parent_folder)}`);
+      document.getElementById('folderInfo').textContent = 
+        `github: ${folders.github}, compress: ${folders.compress}, extract: ${folders.extract}, download: ${folders.download}`;
+      
+      document.getElementById('compressOutput').value = folders.compress;
+      document.getElementById('extractOutput').value = folders.extract;
+      
+      updateTabsVisibility(isNumericUsername);
+    }
+
+    function updateTabsVisibility(isNumericUsername) {
+      const githubTab = document.querySelector('[data-tab="github"]');
+      const proxySection = document.getElementById('proxySection');
+      
+      if (githubTab) {
+        if (isNumericUsername) {
+          githubTab.style.display = 'none';
+          document.getElementById('github-tab').style.display = 'none';
+          // Hide clone proxy settings
+          if (proxySection) proxySection.style.display = 'none';
+          // Default to download tab
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.querySelector('[data-tab="download"]').classList.add('active');
+          document.getElementById('download-tab').classList.add('active');
+        } else {
+          githubTab.style.display = '';
+          document.getElementById('github-tab').style.display = '';
+          if (proxySection) proxySection.style.display = 'flex';
+          // Default to github tab for non-numeric username
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.querySelector('[data-tab="github"]').classList.add('active');
+          document.getElementById('github-tab').classList.add('active');
+        }
+      }
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+      });
+    });
+
+    function setStatus(text, loading = false) {
+      const bar = document.getElementById('statusBar');
+      document.getElementById('statusText').textContent = text;
+      bar.classList.toggle('loading', loading);
+    }
+
+    function showToast(message, type = 'success') {
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
+      
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // Modal related variables
+    let currentModalCallback = null;
+    let currentInputId = null;
+
+    // Open modal
+    function openModal(options) {
+      const modal = document.getElementById('pathModal');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const subtitle = document.getElementById('modalSubtitle');
+      const input = document.getElementById('modalInput');
+
+      icon.textContent = options.icon || '📁';
+      title.textContent = options.title || 'Select Path';
+      subtitle.textContent = options.subtitle || 'Please enter path';
+      input.placeholder = options.placeholder || 'Enter path...';
+      input.value = options.defaultValue || '';
+
+      currentModalCallback = options.onConfirm;
+      currentInputId = options.inputId;
+
+      modal.classList.add('active');
+      input.focus();
+      input.select();
+
+      // Support Enter key to confirm
+      input.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          confirmModal();
+        } else if (e.key === 'Escape') {
+          closeModal();
+        }
+      };
+    }
+
+    // Close modal
+    function closeModal() {
+      const modal = document.getElementById('pathModal');
+      modal.classList.remove('active');
+      currentModalCallback = null;
+      currentInputId = null;
+    }
+
+    // Confirm modal
+    function confirmModal() {
+      const input = document.getElementById('modalInput');
+      let value = input.value.trim();
+
+      // Auto remove surrounding quotes from path
+      if ((value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))) {
+        value = value.slice(1, -1);
+      }
+
+      if (value && currentInputId) {
+        document.getElementById(currentInputId).value = value;
+      }
+
+      if (currentModalCallback) {
+        currentModalCallback(value);
+      }
+
+      closeModal();
+    }
+
+    async function browseFolder(inputId) {
+      const input = document.getElementById(inputId);
+      openModal({
+        icon: '📁',
+        title: 'Select Folder',
+        subtitle: 'Please enter the full folder path',
+        placeholder: 'e.g.: C:\\Users\\Username\\Documents',
+        defaultValue: input.value,
+        inputId: inputId
+      });
+    }
+
+    async function browseFile(inputId) {
+      const input = document.getElementById(inputId);
+      openModal({
+        icon: '📄',
+        title: 'Select File',
+        subtitle: 'Please enter the full file path',
+        placeholder: 'e.g.: C:\\Users\\Username\\file.txt',
+        defaultValue: input.value,
+        inputId: inputId
+      });
+    }
+
+    async function saveSettings() {
+      const parentFolder = getInputValue('parentFolder');
+      const proxyEnabled = document.getElementById('proxyEnabled').checked;
+      const proxyAddress = getInputValue('proxyAddress') || '127.0.0.1';
+      const proxyPort = parseInt(getInputValue('proxyPort')) || 10808;
+      const proxyUser = getInputValue('proxyUser');
+      const proxyPass = getInputValue('proxyPass');
+      const downloadProxyEnabled = document.getElementById('downloadProxyEnabled').checked;
+      const downloadProxyAddress = getInputValue('downloadProxyAddress') || '127.0.0.1';
+      const downloadProxyPort = parseInt(getInputValue('downloadProxyPort')) || 10808;
+      const downloadProxyUser = getInputValue('downloadProxyUser');
+      const downloadProxyPass = getInputValue('downloadProxyPass');
+      
+      // Save to localStorage
+      const settings = {
+        parent_folder: parentFolder,
+        proxy_enabled: proxyEnabled,
+        proxy_address: proxyAddress,
+        proxy_port: proxyPort,
+        proxy_user: proxyUser,
+        proxy_pass: proxyPass,
+        download_proxy_enabled: downloadProxyEnabled,
+        download_proxy_address: downloadProxyAddress,
+        download_proxy_port: downloadProxyPort,
+        download_proxy_user: downloadProxyUser,
+        download_proxy_pass: downloadProxyPass
+      };
+      localStorage.setItem('devtoolkit_config', JSON.stringify(settings));
+      
+      config = settings;
+      
+      const folders = await api(`/api/folders?parent=${encodeURIComponent(config.parent_folder)}`);
+      document.getElementById('folderInfo').textContent = 
+        `github: ${folders.github}, compress: ${folders.compress}, extract: ${folders.extract}, download: ${folders.download}`;
+      document.getElementById('compressOutput').value = folders.compress;
+      document.getElementById('extractOutput').value = folders.extract;
+      
+      showToast('Settings saved successfully!');
+    }
+    
+    async function cloneRepo() {
+      const url = document.getElementById('githubUrl').value.trim();
+      if (!url) {
+        showToast('Please enter a GitHub repository URL!', 'error');
+        return;
+      }
+      
+      setStatus('Cloning repository...', true);
+      document.getElementById('cloneBtn').disabled = true;
+      
+      try {
+        const result = await api('/api/github/clone', {
+          method: 'POST',
+          body: JSON.stringify({ url })
+        });
+        
+        if (result.success) {
+          showToast(`Repository cloned to: ${result.path}`);
+          const repoName = url.replace(/\.git$/, '').split('/').pop();
+          addLog('clone', `克隆仓库 ${repoName} 成功`, result.path);
+        } else {
+          if (result.proxyStatus === 'available_not_used') {
+            showToast(result.error + ' You can enable it in Settings.', 'warning');
+          } else if (result.proxyStatus === 'not_open') {
+            showToast(result.error, 'error');
+          } else {
+            showToast(result.error || 'Clone failed', 'error');
+          }
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+      
+      setStatus('Ready');
+      document.getElementById('cloneBtn').disabled = !document.getElementById('githubEnabled').checked;
+    }
+
+    async function compressZipBase64() {
+      const sourceFolder = getInputValue('compressSource');
+      const outputFolder = getInputValue('compressOutput');
+      
+      if (!sourceFolder) {
+        showToast('Please select a source folder!', 'error');
+        return;
+      }
+      
+      setStatus('Creating ZIP with exclusions...', true);
+      document.getElementById('zipBtn').disabled = true;
+      
+      try {
+        const result = await api('/api/compress/zip-base64', {
+          method: 'POST',
+          body: JSON.stringify({ sourceFolder, outputFolder })
+        });
+        
+        if (result.success) {
+          showToast(`Saved to: ${result.outputPath}`);
+          const folderName = sourceFolder.split(/[/\\]/).pop();
+          addLog('compress-zip', `压缩文件夹 ${folderName} 成功`, result.outputPath);
+        } else {
+          showToast(result.error || 'Compression failed', 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+      
+      setStatus('Ready');
+      document.getElementById('zipBtn').disabled = false;
+    }
+
+    async function compressTxt() {
+      const sourceFolder = getInputValue('compressSource');
+      const outputFolder = getInputValue('compressOutput');
+      
+      if (!sourceFolder) {
+        showToast('Please select a source folder!', 'error');
+        return;
+      }
+      
+      setStatus('Merging files to TXT...', true);
+      document.getElementById('txtBtn').disabled = true;
+      
+      try {
+        const result = await api('/api/compress/txt', {
+          method: 'POST',
+          body: JSON.stringify({ sourceFolder, outputFolder })
+        });
+        
+        if (result.success) {
+          showToast(`Files merged: ${result.fileCount}, Skipped: ${result.skipCount}\nSaved to: ${result.outputPath}`);
+          const folderName = sourceFolder.split(/[/\\]/).pop();
+          addLog('compress-txt', `合并 ${result.fileCount} 个文件 (${folderName})`, result.outputPath);
+        } else {
+          showToast(result.error || 'Compression failed', 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+      
+      setStatus('Ready');
+      document.getElementById('txtBtn').disabled = false;
+    }
+
+    async function extractZipBase64() {
+      const inputFile = getInputValue('extractInput');
+      const outputFolder = getInputValue('extractOutput');
+      
+      if (!inputFile) {
+        showToast('Please select an input file!', 'error');
+        return;
+      }
+      
+      setStatus('Extracting ZIP+Base64...', true);
+      document.getElementById('extractZipBtn').disabled = true;
+      
+      try {
+        const result = await api('/api/extract/zip-base64', {
+          method: 'POST',
+          body: JSON.stringify({ inputFile, outputFolder })
+        });
+        
+        if (result.success) {
+          showToast(`Extracted to: ${result.outputPath}`);
+          const fileName = inputFile.split(/[/\\]/).pop();
+          addLog('extract-zip', `Extracted ${fileName} successfully`, result.outputPath);
+        } else {
+          showToast(result.error || 'Extraction failed', 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+      
+      setStatus('Ready');
+      document.getElementById('extractZipBtn').disabled = false;
+    }
+
+    async function extractTxt() {
+      const inputFile = getInputValue('extractInput');
+      const outputFolder = getInputValue('extractOutput');
+      
+      if (!inputFile) {
+        showToast('Please select an input file!', 'error');
+        return;
+      }
+      
+      setStatus('Extracting TXT...', true);
+      document.getElementById('extractTxtBtn').disabled = true;
+      
+      try {
+        const result = await api('/api/extract/txt', {
+          method: 'POST',
+          body: JSON.stringify({ inputFile, outputFolder })
+        });
+        
+        if (result.success) {
+          showToast(`Extracted ${result.fileCount} files to: ${result.outputPath}`);
+          const fileName = inputFile.split(/[/\\]/).pop();
+          addLog('extract-txt', `Extracted ${result.fileCount} files (${fileName})`, result.outputPath);
+        } else {
+          showToast(result.error || 'Extraction failed', 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+      
+      setStatus('Ready');
+      document.getElementById('extractTxtBtn').disabled = false;
+    }
+
+    async function downloadFile() {
+      const url = getInputValue('downloadUrl');
+      if (!url) {
+        showToast('Please enter a GitHub file URL!', 'error');
+        return;
+      }
+      
+      setStatus('Downloading file...', true);
+      document.getElementById('downloadBtn').disabled = true;
+      
+      try {
+        const result = await api('/api/github/download-file', {
+          method: 'POST',
+          body: JSON.stringify({ url })
+        });
+        
+        if (result.success) {
+          showToast(`File downloaded to: ${result.path}`);
+          const fileName = result.path.split(/[/\\]/).pop();
+          addLog('download', `Downloaded file ${fileName} successfully`, result.path);
+        } else {
+          showToast(result.error || 'Download failed', 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+      
+      setStatus('Ready');
+      document.getElementById('downloadBtn').disabled = false;
+    }
+
+    init();
+  </script>
+</body>
+</html>
+
+===END===
+
+===FILE:README.md===
+# DevToolkit
+
+Developer Utilities Suite - A modern web-based tool for developer tasks.
+
+## Features
+
+### GitHub Clone
+- Clone GitHub repositories to local folder
+- Auto-detect proxy status (default port: 10808)
+- Use proxy for clone if enabled
+- **Hidden automatically** if Windows username is numeric (e.g., 10808)
+
+### Download
+- Download single files from GitHub
+- Automatically converts GitHub URL to raw.githubusercontent.com URL
+- Separate proxy settings for download (independent from clone proxy)
+- Default proxy port: 10808
+
+### Compress
+- **ZIP + Base64**: Compress folder to ZIP, then encode as Base64
+- **Merge to TXT**: Merge all files into a single TXT file
+- Auto-exclude build artifacts: `.git`, `node_modules`, `target`, `build`, `__pycache__`, etc.
+
+### Extract
+- **Extract ZIP+Base64**: Decode Base64 and extract ZIP
+- **Extract TXT**: Restore files from merged TXT
+
+### Operation Logs
+- Records all operations (clone, download, compress, extract)
+- Displays operation details including file paths
+- One-click path copying
+- Persistent storage in localStorage
+- Slide-out panel on the right side of the screen
+
+## Quick Start
+
+```bash
+npm install
+npm start
+```
+
+Then open http://localhost:3000
+
+## Proxy Detection
+
+### GitHub Clone
+The app will automatically detect if a proxy is running on port 10808:
+
+1. **Proxy available but not enabled**: Shows warning that proxy is available
+2. **Proxy enabled but not running**: Shows error to start proxy
+3. **Proxy enabled and running**: Uses proxy for git clone
+
+### File Download
+- Separate proxy setting for file download
+- Configure in Settings - "Download Proxy" section
+- Default port: 10808
+
+## Settings
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| Parent Folder | Base folder for all operations | ABC folder |
+| Enable GitHub Clone | Show/hide clone tab | Auto (hidden if username is numeric) |
+| Proxy (Clone) | Proxy for git clone | Port 10808 |
+| Download Proxy | Proxy for file download | Port 10808 |
+
+## Theme
+
+Toggle between Dark/Light mode using the button in the top-right corner.
+
+## Tech Stack
+
+- **Frontend**: Pure HTML/CSS/JS with modern design
+- **Backend**: Node.js + Express
+- **Compression**: 7-Zip (via command line)
+- **Download**: cURL
+
+## Folder Structure
+
+All operations use folders under the parent folder:
+
+```
+ABC folder/
+├── github/     # Git clone destinations
+├── compress/   # Compressed output
+├── extract/    # Extracted files
+└── download/   # Downloaded files
+```
+
+===END===
+
+===FILE:package-lock.json===
+{
+  "name": "devtoolkit",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "devtoolkit",
+      "version": "1.0.0",
+      "dependencies": {
+        "body-parser": "^1.20.2",
+        "cors": "^2.8.5",
+        "express": "^4.18.2"
+      }
+    },
+    "node_modules/accepts": {
+      "version": "1.3.8",
+      "resolved": "https://registry.npmmirror.com/accepts/-/accepts-1.3.8.tgz",
+      "integrity": "sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==",
+      "dependencies": {
+        "mime-types": "~2.1.34",
+        "negotiator": "0.6.3"
+      },
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/array-flatten": {
+      "version": "1.1.1",
+      "resolved": "https://registry.npmmirror.com/array-flatten/-/array-flatten-1.1.1.tgz",
+      "integrity": "sha512-PCVAQswWemu6UdxsDFFX/+gVeYqKAod3D3UVm91jHwynguOwAvYPhx8nNlM++NqRcK6CxxpUafjmhIdKiHibqg=="
+    },
+    "node_modules/body-parser": {
+      "version": "1.20.4",
+      "resolved": "https://registry.npmmirror.com/body-parser/-/body-parser-1.20.4.tgz",
+      "integrity": "sha512-ZTgYYLMOXY9qKU/57FAo8F+HA2dGX7bqGc71txDRC1rS4frdFI5R7NhluHxH6M0YItAP0sHB4uqAOcYKxO6uGA==",
+      "dependencies": {
+        "bytes": "~3.1.2",
+        "content-type": "~1.0.5",
+        "debug": "2.6.9",
+        "depd": "2.0.0",
+        "destroy": "~1.2.0",
+        "http-errors": "~2.0.1",
+        "iconv-lite": "~0.4.24",
+        "on-finished": "~2.4.1",
+        "qs": "~6.14.0",
+        "raw-body": "~2.5.3",
+        "type-is": "~1.6.18",
+        "unpipe": "~1.0.0"
+      },
+      "engines": {
+        "node": ">= 0.8",
+        "npm": "1.2.8000 || >= 1.4.16"
+      }
+    },
+    "node_modules/bytes": {
+      "version": "3.1.2",
+      "resolved": "https://registry.npmmirror.com/bytes/-/bytes-3.1.2.tgz",
+      "integrity": "sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/call-bind-apply-helpers": {
+      "version": "1.0.2",
+      "resolved": "https://registry.npmmirror.com/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
+      "integrity": "sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==",
+      "dependencies": {
+        "es-errors": "^1.3.0",
+        "function-bind": "^1.1.2"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/call-bound": {
+      "version": "1.0.4",
+      "resolved": "https://registry.npmmirror.com/call-bound/-/call-bound-1.0.4.tgz",
+      "integrity": "sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==",
+      "dependencies": {
+        "call-bind-apply-helpers": "^1.0.2",
+        "get-intrinsic": "^1.3.0"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/content-disposition": {
+      "version": "0.5.4",
+      "resolved": "https://registry.npmmirror.com/content-disposition/-/content-disposition-0.5.4.tgz",
+      "integrity": "sha512-FveZTNuGw04cxlAiWbzi6zTAL/lhehaWbTtgluJh4/E95DqMwTmha3KZN1aAWA8cFIhHzMZUvLevkw5Rqk+tSQ==",
+      "dependencies": {
+        "safe-buffer": "5.2.1"
+      },
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/content-type": {
+      "version": "1.0.5",
+      "resolved": "https://registry.npmmirror.com/content-type/-/content-type-1.0.5.tgz",
+      "integrity": "sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA==",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/cookie": {
+      "version": "0.7.2",
+      "resolved": "https://registry.npmmirror.com/cookie/-/cookie-0.7.2.tgz",
+      "integrity": "sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/cookie-signature": {
+      "version": "1.0.7",
+      "resolved": "https://registry.npmmirror.com/cookie-signature/-/cookie-signature-1.0.7.tgz",
+      "integrity": "sha512-NXdYc3dLr47pBkpUCHtKSwIOQXLVn8dZEuywboCOJY/osA0wFSLlSawr3KN8qXJEyX66FcONTH8EIlVuK0yyFA=="
+    },
+    "node_modules/cors": {
+      "version": "2.8.6",
+      "resolved": "https://registry.npmmirror.com/cors/-/cors-2.8.6.tgz",
+      "integrity": "sha512-tJtZBBHA6vjIAaF6EnIaq6laBBP9aq/Y3ouVJjEfoHbRBcHBAHYcMh/w8LDrk2PvIMMq8gmopa5D4V8RmbrxGw==",
+      "dependencies": {
+        "object-assign": "^4",
+        "vary": "^1"
+      },
+      "engines": {
+        "node": ">= 0.10"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/express"
+      }
+    },
+    "node_modules/debug": {
+      "version": "2.6.9",
+      "resolved": "https://registry.npmmirror.com/debug/-/debug-2.6.9.tgz",
+      "integrity": "sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==",
+      "dependencies": {
+        "ms": "2.0.0"
+      }
+    },
+    "node_modules/depd": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmmirror.com/depd/-/depd-2.0.0.tgz",
+      "integrity": "sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/destroy": {
+      "version": "1.2.0",
+      "resolved": "https://registry.npmmirror.com/destroy/-/destroy-1.2.0.tgz",
+      "integrity": "sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==",
+      "engines": {
+        "node": ">= 0.8",
+        "npm": "1.2.8000 || >= 1.4.16"
+      }
+    },
+    "node_modules/dunder-proto": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmmirror.com/dunder-proto/-/dunder-proto-1.0.1.tgz",
+      "integrity": "sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==",
+      "dependencies": {
+        "call-bind-apply-helpers": "^1.0.1",
+        "es-errors": "^1.3.0",
+        "gopd": "^1.2.0"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/ee-first": {
+      "version": "1.1.1",
+      "resolved": "https://registry.npmmirror.com/ee-first/-/ee-first-1.1.1.tgz",
+      "integrity": "sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow=="
+    },
+    "node_modules/encodeurl": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmmirror.com/encodeurl/-/encodeurl-2.0.0.tgz",
+      "integrity": "sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/es-define-property": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmmirror.com/es-define-property/-/es-define-property-1.0.1.tgz",
+      "integrity": "sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==",
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/es-errors": {
+      "version": "1.3.0",
+      "resolved": "https://registry.npmmirror.com/es-errors/-/es-errors-1.3.0.tgz",
+      "integrity": "sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==",
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/es-object-atoms": {
+      "version": "1.1.1",
+      "resolved": "https://registry.npmmirror.com/es-object-atoms/-/es-object-atoms-1.1.1.tgz",
+      "integrity": "sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==",
+      "dependencies": {
+        "es-errors": "^1.3.0"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/escape-html": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmmirror.com/escape-html/-/escape-html-1.0.3.tgz",
+      "integrity": "sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow=="
+    },
+    "node_modules/etag": {
+      "version": "1.8.1",
+      "resolved": "https://registry.npmmirror.com/etag/-/etag-1.8.1.tgz",
+      "integrity": "sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/express": {
+      "version": "4.22.1",
+      "resolved": "https://registry.npmmirror.com/express/-/express-4.22.1.tgz",
+      "integrity": "sha512-F2X8g9P1X7uCPZMA3MVf9wcTqlyNp7IhH5qPCI0izhaOIYXaW9L535tGA3qmjRzpH+bZczqq7hVKxTR4NWnu+g==",
+      "dependencies": {
+        "accepts": "~1.3.8",
+        "array-flatten": "1.1.1",
+        "body-parser": "~1.20.3",
+        "content-disposition": "~0.5.4",
+        "content-type": "~1.0.4",
+        "cookie": "~0.7.1",
+        "cookie-signature": "~1.0.6",
+        "debug": "2.6.9",
+        "depd": "2.0.0",
+        "encodeurl": "~2.0.0",
+        "escape-html": "~1.0.3",
+        "etag": "~1.8.1",
+        "finalhandler": "~1.3.1",
+        "fresh": "~0.5.2",
+        "http-errors": "~2.0.0",
+        "merge-descriptors": "1.0.3",
+        "methods": "~1.1.2",
+        "on-finished": "~2.4.1",
+        "parseurl": "~1.3.3",
+        "path-to-regexp": "~0.1.12",
+        "proxy-addr": "~2.0.7",
+        "qs": "~6.14.0",
+        "range-parser": "~1.2.1",
+        "safe-buffer": "5.2.1",
+        "send": "~0.19.0",
+        "serve-static": "~1.16.2",
+        "setprototypeof": "1.2.0",
+        "statuses": "~2.0.1",
+        "type-is": "~1.6.18",
+        "utils-merge": "1.0.1",
+        "vary": "~1.1.2"
+      },
+      "engines": {
+        "node": ">= 0.10.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/express"
+      }
+    },
+    "node_modules/finalhandler": {
+      "version": "1.3.2",
+      "resolved": "https://registry.npmmirror.com/finalhandler/-/finalhandler-1.3.2.tgz",
+      "integrity": "sha512-aA4RyPcd3badbdABGDuTXCMTtOneUCAYH/gxoYRTZlIJdF0YPWuGqiAsIrhNnnqdXGswYk6dGujem4w80UJFhg==",
+      "dependencies": {
+        "debug": "2.6.9",
+        "encodeurl": "~2.0.0",
+        "escape-html": "~1.0.3",
+        "on-finished": "~2.4.1",
+        "parseurl": "~1.3.3",
+        "statuses": "~2.0.2",
+        "unpipe": "~1.0.0"
+      },
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/forwarded": {
+      "version": "0.2.0",
+      "resolved": "https://registry.npmmirror.com/forwarded/-/forwarded-0.2.0.tgz",
+      "integrity": "sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/fresh": {
+      "version": "0.5.2",
+      "resolved": "https://registry.npmmirror.com/fresh/-/fresh-0.5.2.tgz",
+      "integrity": "sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/function-bind": {
+      "version": "1.1.2",
+      "resolved": "https://registry.npmmirror.com/function-bind/-/function-bind-1.1.2.tgz",
+      "integrity": "sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==",
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/get-intrinsic": {
+      "version": "1.3.0",
+      "resolved": "https://registry.npmmirror.com/get-intrinsic/-/get-intrinsic-1.3.0.tgz",
+      "integrity": "sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==",
+      "dependencies": {
+        "call-bind-apply-helpers": "^1.0.2",
+        "es-define-property": "^1.0.1",
+        "es-errors": "^1.3.0",
+        "es-object-atoms": "^1.1.1",
+        "function-bind": "^1.1.2",
+        "get-proto": "^1.0.1",
+        "gopd": "^1.2.0",
+        "has-symbols": "^1.1.0",
+        "hasown": "^2.0.2",
+        "math-intrinsics": "^1.1.0"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/get-proto": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmmirror.com/get-proto/-/get-proto-1.0.1.tgz",
+      "integrity": "sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==",
+      "dependencies": {
+        "dunder-proto": "^1.0.1",
+        "es-object-atoms": "^1.0.0"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/gopd": {
+      "version": "1.2.0",
+      "resolved": "https://registry.npmmirror.com/gopd/-/gopd-1.2.0.tgz",
+      "integrity": "sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==",
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/has-symbols": {
+      "version": "1.1.0",
+      "resolved": "https://registry.npmmirror.com/has-symbols/-/has-symbols-1.1.0.tgz",
+      "integrity": "sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==",
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/hasown": {
+      "version": "2.0.2",
+      "resolved": "https://registry.npmmirror.com/hasown/-/hasown-2.0.2.tgz",
+      "integrity": "sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==",
+      "dependencies": {
+        "function-bind": "^1.1.2"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/http-errors": {
+      "version": "2.0.1",
+      "resolved": "https://registry.npmmirror.com/http-errors/-/http-errors-2.0.1.tgz",
+      "integrity": "sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==",
+      "dependencies": {
+        "depd": "~2.0.0",
+        "inherits": "~2.0.4",
+        "setprototypeof": "~1.2.0",
+        "statuses": "~2.0.2",
+        "toidentifier": "~1.0.1"
+      },
+      "engines": {
+        "node": ">= 0.8"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/express"
+      }
+    },
+    "node_modules/iconv-lite": {
+      "version": "0.4.24",
+      "resolved": "https://registry.npmmirror.com/iconv-lite/-/iconv-lite-0.4.24.tgz",
+      "integrity": "sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==",
+      "dependencies": {
+        "safer-buffer": ">= 2.1.2 < 3"
+      },
+      "engines": {
+        "node": ">=0.10.0"
+      }
+    },
+    "node_modules/inherits": {
+      "version": "2.0.4",
+      "resolved": "https://registry.npmmirror.com/inherits/-/inherits-2.0.4.tgz",
+      "integrity": "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="
+    },
+    "node_modules/ipaddr.js": {
+      "version": "1.9.1",
+      "resolved": "https://registry.npmmirror.com/ipaddr.js/-/ipaddr.js-1.9.1.tgz",
+      "integrity": "sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==",
+      "engines": {
+        "node": ">= 0.10"
+      }
+    },
+    "node_modules/math-intrinsics": {
+      "version": "1.1.0",
+      "resolved": "https://registry.npmmirror.com/math-intrinsics/-/math-intrinsics-1.1.0.tgz",
+      "integrity": "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==",
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/media-typer": {
+      "version": "0.3.0",
+      "resolved": "https://registry.npmmirror.com/media-typer/-/media-typer-0.3.0.tgz",
+      "integrity": "sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/merge-descriptors": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmmirror.com/merge-descriptors/-/merge-descriptors-1.0.3.tgz",
+      "integrity": "sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ==",
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/methods": {
+      "version": "1.1.2",
+      "resolved": "https://registry.npmmirror.com/methods/-/methods-1.1.2.tgz",
+      "integrity": "sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/mime": {
+      "version": "1.6.0",
+      "resolved": "https://registry.npmmirror.com/mime/-/mime-1.6.0.tgz",
+      "integrity": "sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==",
+      "bin": {
+        "mime": "cli.js"
+      },
+      "engines": {
+        "node": ">=4"
+      }
+    },
+    "node_modules/mime-db": {
+      "version": "1.52.0",
+      "resolved": "https://registry.npmmirror.com/mime-db/-/mime-db-1.52.0.tgz",
+      "integrity": "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/mime-types": {
+      "version": "2.1.35",
+      "resolved": "https://registry.npmmirror.com/mime-types/-/mime-types-2.1.35.tgz",
+      "integrity": "sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==",
+      "dependencies": {
+        "mime-db": "1.52.0"
+      },
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/ms": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmmirror.com/ms/-/ms-2.0.0.tgz",
+      "integrity": "sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A=="
+    },
+    "node_modules/negotiator": {
+      "version": "0.6.3",
+      "resolved": "https://registry.npmmirror.com/negotiator/-/negotiator-0.6.3.tgz",
+      "integrity": "sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/object-assign": {
+      "version": "4.1.1",
+      "resolved": "https://registry.npmmirror.com/object-assign/-/object-assign-4.1.1.tgz",
+      "integrity": "sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==",
+      "engines": {
+        "node": ">=0.10.0"
+      }
+    },
+    "node_modules/object-inspect": {
+      "version": "1.13.4",
+      "resolved": "https://registry.npmmirror.com/object-inspect/-/object-inspect-1.13.4.tgz",
+      "integrity": "sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==",
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/on-finished": {
+      "version": "2.4.1",
+      "resolved": "https://registry.npmmirror.com/on-finished/-/on-finished-2.4.1.tgz",
+      "integrity": "sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==",
+      "dependencies": {
+        "ee-first": "1.1.1"
+      },
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/parseurl": {
+      "version": "1.3.3",
+      "resolved": "https://registry.npmmirror.com/parseurl/-/parseurl-1.3.3.tgz",
+      "integrity": "sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/path-to-regexp": {
+      "version": "0.1.12",
+      "resolved": "https://registry.npmmirror.com/path-to-regexp/-/path-to-regexp-0.1.12.tgz",
+      "integrity": "sha512-RA1GjUVMnvYFxuqovrEqZoxxW5NUZqbwKtYz/Tt7nXerk0LbLblQmrsgdeOxV5SFHf0UDggjS/bSeOZwt1pmEQ=="
+    },
+    "node_modules/proxy-addr": {
+      "version": "2.0.7",
+      "resolved": "https://registry.npmmirror.com/proxy-addr/-/proxy-addr-2.0.7.tgz",
+      "integrity": "sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==",
+      "dependencies": {
+        "forwarded": "0.2.0",
+        "ipaddr.js": "1.9.1"
+      },
+      "engines": {
+        "node": ">= 0.10"
+      }
+    },
+    "node_modules/qs": {
+      "version": "6.14.2",
+      "resolved": "https://registry.npmmirror.com/qs/-/qs-6.14.2.tgz",
+      "integrity": "sha512-V/yCWTTF7VJ9hIh18Ugr2zhJMP01MY7c5kh4J870L7imm6/DIzBsNLTXzMwUA3yZ5b/KBqLx8Kp3uRvd7xSe3Q==",
+      "dependencies": {
+        "side-channel": "^1.1.0"
+      },
+      "engines": {
+        "node": ">=0.6"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/range-parser": {
+      "version": "1.2.1",
+      "resolved": "https://registry.npmmirror.com/range-parser/-/range-parser-1.2.1.tgz",
+      "integrity": "sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/raw-body": {
+      "version": "2.5.3",
+      "resolved": "https://registry.npmmirror.com/raw-body/-/raw-body-2.5.3.tgz",
+      "integrity": "sha512-s4VSOf6yN0rvbRZGxs8Om5CWj6seneMwK3oDb4lWDH0UPhWcxwOWw5+qk24bxq87szX1ydrwylIOp2uG1ojUpA==",
+      "dependencies": {
+        "bytes": "~3.1.2",
+        "http-errors": "~2.0.1",
+        "iconv-lite": "~0.4.24",
+        "unpipe": "~1.0.0"
+      },
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/safe-buffer": {
+      "version": "5.2.1",
+      "resolved": "https://registry.npmmirror.com/safe-buffer/-/safe-buffer-5.2.1.tgz",
+      "integrity": "sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==",
+      "funding": [
+        {
+          "type": "github",
+          "url": "https://github.com/sponsors/feross"
+        },
+        {
+          "type": "patreon",
+          "url": "https://www.patreon.com/feross"
+        },
+        {
+          "type": "consulting",
+          "url": "https://feross.org/support"
+        }
+      ]
+    },
+    "node_modules/safer-buffer": {
+      "version": "2.1.2",
+      "resolved": "https://registry.npmmirror.com/safer-buffer/-/safer-buffer-2.1.2.tgz",
+      "integrity": "sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg=="
+    },
+    "node_modules/send": {
+      "version": "0.19.2",
+      "resolved": "https://registry.npmmirror.com/send/-/send-0.19.2.tgz",
+      "integrity": "sha512-VMbMxbDeehAxpOtWJXlcUS5E8iXh6QmN+BkRX1GARS3wRaXEEgzCcB10gTQazO42tpNIya8xIyNx8fll1OFPrg==",
+      "dependencies": {
+        "debug": "2.6.9",
+        "depd": "2.0.0",
+        "destroy": "1.2.0",
+        "encodeurl": "~2.0.0",
+        "escape-html": "~1.0.3",
+        "etag": "~1.8.1",
+        "fresh": "~0.5.2",
+        "http-errors": "~2.0.1",
+        "mime": "1.6.0",
+        "ms": "2.1.3",
+        "on-finished": "~2.4.1",
+        "range-parser": "~1.2.1",
+        "statuses": "~2.0.2"
+      },
+      "engines": {
+        "node": ">= 0.8.0"
+      }
+    },
+    "node_modules/send/node_modules/ms": {
+      "version": "2.1.3",
+      "resolved": "https://registry.npmmirror.com/ms/-/ms-2.1.3.tgz",
+      "integrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="
+    },
+    "node_modules/serve-static": {
+      "version": "1.16.3",
+      "resolved": "https://registry.npmmirror.com/serve-static/-/serve-static-1.16.3.tgz",
+      "integrity": "sha512-x0RTqQel6g5SY7Lg6ZreMmsOzncHFU7nhnRWkKgWuMTu5NN0DR5oruckMqRvacAN9d5w6ARnRBXl9xhDCgfMeA==",
+      "dependencies": {
+        "encodeurl": "~2.0.0",
+        "escape-html": "~1.0.3",
+        "parseurl": "~1.3.3",
+        "send": "~0.19.1"
+      },
+      "engines": {
+        "node": ">= 0.8.0"
+      }
+    },
+    "node_modules/setprototypeof": {
+      "version": "1.2.0",
+      "resolved": "https://registry.npmmirror.com/setprototypeof/-/setprototypeof-1.2.0.tgz",
+      "integrity": "sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw=="
+    },
+    "node_modules/side-channel": {
+      "version": "1.1.0",
+      "resolved": "https://registry.npmmirror.com/side-channel/-/side-channel-1.1.0.tgz",
+      "integrity": "sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==",
+      "dependencies": {
+        "es-errors": "^1.3.0",
+        "object-inspect": "^1.13.3",
+        "side-channel-list": "^1.0.0",
+        "side-channel-map": "^1.0.1",
+        "side-channel-weakmap": "^1.0.2"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/side-channel-list": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmmirror.com/side-channel-list/-/side-channel-list-1.0.0.tgz",
+      "integrity": "sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==",
+      "dependencies": {
+        "es-errors": "^1.3.0",
+        "object-inspect": "^1.13.3"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/side-channel-map": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmmirror.com/side-channel-map/-/side-channel-map-1.0.1.tgz",
+      "integrity": "sha512-VCjCNfgMsby3tTdo02nbjtM/ewra6jPHmpThenkTYh8pG9ucZ/1P8So4u4FGBek/BjpOVsDCMoLA/iuBKIFXRA==",
+      "dependencies": {
+        "call-bound": "^1.0.2",
+        "es-errors": "^1.3.0",
+        "get-intrinsic": "^1.2.5",
+        "object-inspect": "^1.13.3"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/side-channel-weakmap": {
+      "version": "1.0.2",
+      "resolved": "https://registry.npmmirror.com/side-channel-weakmap/-/side-channel-weakmap-1.0.2.tgz",
+      "integrity": "sha512-WPS/HvHQTYnHisLo9McqBHOJk2FkHO/tlpvldyrnem4aeQp4hai3gythswg6p01oSoTl58rcpiFAjF2br2Ak2A==",
+      "dependencies": {
+        "call-bound": "^1.0.2",
+        "es-errors": "^1.3.0",
+        "get-intrinsic": "^1.2.5",
+        "object-inspect": "^1.13.3",
+        "side-channel-map": "^1.0.1"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/statuses": {
+      "version": "2.0.2",
+      "resolved": "https://registry.npmmirror.com/statuses/-/statuses-2.0.2.tgz",
+      "integrity": "sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/toidentifier": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmmirror.com/toidentifier/-/toidentifier-1.0.1.tgz",
+      "integrity": "sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==",
+      "engines": {
+        "node": ">=0.6"
+      }
+    },
+    "node_modules/type-is": {
+      "version": "1.6.18",
+      "resolved": "https://registry.npmmirror.com/type-is/-/type-is-1.6.18.tgz",
+      "integrity": "sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==",
+      "dependencies": {
+        "media-typer": "0.3.0",
+        "mime-types": "~2.1.24"
+      },
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/unpipe": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmmirror.com/unpipe/-/unpipe-1.0.0.tgz",
+      "integrity": "sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/utils-merge": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmmirror.com/utils-merge/-/utils-merge-1.0.1.tgz",
+      "integrity": "sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==",
+      "engines": {
+        "node": ">= 0.4.0"
+      }
+    },
+    "node_modules/vary": {
+      "version": "1.1.2",
+      "resolved": "https://registry.npmmirror.com/vary/-/vary-1.1.2.tgz",
+      "integrity": "sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    }
+  }
+}
+
+===END===
+
+===FILE:package.json===
+{
+  "name": "devtoolkit",
+  "version": "1.0.0",
+  "description": "Developer Utilities Suite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
+  }
+}
+
+===END===
+
+===FILE:server.js===
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const { exec, spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const crypto = require('crypto');
+const { execSync } = require('child_process');
+
+const app = express();
+const PORT = 3000;
+
+app.use(cors());
+app.use(bodyParser.json({ limit: '500mb' }));
+app.use(express.static('public'));
+
+const CONFIG_FILE = path.join(__dirname, 'config.json');
+const DEFAULT_PARENT = 'RepoFiles';
+
+const EXCLUDE_PATTERNS = [
+  '.git', '.svn', '.hg', '.gitignore', '.gitattributes',
+  'node_modules', 'bower_components', 'vendor',
+  'target', 'build', 'dist', 'out',
+  '__pycache__', '.pytest_cache', '.mypy_cache', '.tox',
+  'venv', '.venv', 'env', '.env',
+  'bin', 'obj', 'packages',
+  '*.pyc', '*.pyo', '*.class', '*.o', '*.so', '*.dll', '*.dylib',
+  '*.exe', '*.jar', '*.war', '*.ear',
+  '*.log', '*.tmp', '*.temp',
+  'Thumbs.db', '.DS_Store', 'desktop.ini'
+];
+
+function loadConfig() {
+  if (fs.existsSync(CONFIG_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
+    } catch (e) {}
+  }
+  const username = os.userInfo().username;
+  const isNumeric = /^\d+$/.test(username);
+  return {
+    parent_folder: DEFAULT_PARENT,
+    proxy_enabled: false,
+    proxy_address: '127.0.0.1',
+    proxy_port: 10808,
+    proxy_user: '',
+    proxy_pass: '',
+    download_proxy_enabled: false,
+    download_proxy_address: '127.0.0.1',
+    download_proxy_port: 10808,
+    download_proxy_user: '',
+    download_proxy_pass: ''
+  };
+}
+
+function checkProxy(port) {
+  return new Promise((resolve) => {
+    const net = require('net');
+    const client = new net.Socket();
+    
+    client.setTimeout(1000);
+    
+    client.on('connect', () => {
+      client.destroy();
+      resolve(true);
+    });
+    
+    client.on('timeout', () => {
+      client.destroy();
+      resolve(false);
+    });
+    
+    client.on('error', () => {
+      resolve(false);
+    });
+    
+    client.connect(port, '127.0.0.1');
+  });
+}
+
+function saveConfig(config) {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+}
+
+function get7zPath() {
+  const paths = [
+    'C:\\Program Files\\7-Zip\\7z.exe',
+    'C:\\Program Files (x86)\\7-Zip\\7z.exe',
+    '7z'
+  ];
+  for (const p of paths) {
+    if (p === '7z' || fs.existsSync(p)) return p;
+  }
+  return '7z';
+}
+
+function getFolder(subfolder) {
+  const config = loadConfig();
+  const parent = config.parent_folder || DEFAULT_PARENT;
+  return path.join(parent, subfolder);
+}
+
+function ensureFolders() {
+  const folders = ['github', 'compress', 'extract', 'download'];
+  folders.forEach(f => {
+    const dir = getFolder(f);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  });
+}
+
+function shouldExclude(filePath) {
+  const name = path.basename(filePath);
+  for (const pattern of EXCLUDE_PATTERNS) {
+    if (pattern.startsWith('*')) {
+      if (name.endsWith(pattern.slice(1))) return true;
+    } else if (name === pattern || pattern.includes(name)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function runCommand(cmd, cwd) {
+  return new Promise((resolve, reject) => {
+    exec(cmd, { cwd, windowsHide: true }, (error, stdout, stderr) => {
+      if (error) reject(error);
+      else resolve({ stdout, stderr });
+    });
+  });
+}
+
+function generateId() {
+  return crypto.randomBytes(8).toString('hex');
+}
+
+ensureFolders();
+
+app.get('/api/config', (req, res) => {
+  res.json({});
+});
+
+app.get('/api/system-info', (req, res) => {
+  const username = os.userInfo().username;
+  const isNumeric = /^\d+$/.test(username);
+  res.json({
+    username: username,
+    isNumericUsername: isNumeric
+  });
+});
+
+app.post('/api/config', (req, res) => {
+  res.json({ success: true });
+});
+
+app.get('/api/folders', (req, res) => {
+  const config = loadConfig();
+  const parent = req.query.parent || config.parent_folder || DEFAULT_PARENT;
+  res.json({
+    github: path.join(parent, 'github'),
+    compress: path.join(parent, 'compress'),
+    extract: path.join(parent, 'extract'),
+    download: path.join(parent, 'download')
+  });
+});
+
+app.post('/api/github/clone', async (req, res) => {
+  const { url } = req.body;
+  const config = loadConfig();
+  
+  if (!url) {
+    return res.status(400).json({ error: 'URL is required' });
+  }
+  
+  const targetDir = getFolder('github');
+  let repoName = url.replace(/\.git$/, '').split('/').pop();
+  const targetPath = path.join(targetDir, repoName);
+  
+  if (fs.existsSync(targetPath)) {
+    fs.rmSync(targetPath, { recursive: true });
+  }
+  
+  const proxyAddress = config.proxy_address || '127.0.0.1';
+  const proxyPort = config.proxy_port || 10808;
+  const proxyUser = config.proxy_user || '';
+  const proxyPass = config.proxy_pass || '';
+  let useProxy = config.proxy_enabled;
+  let proxyStatus = 'none';
+  
+  if (useProxy) {
+    const proxyOpen = await checkProxy(proxyPort);
+    if (proxyOpen) {
+      proxyStatus = 'connected';
+    } else {
+      proxyStatus = 'not_open';
+      return res.status(400).json({ 
+        error: `Proxy port ${proxyPort} is not open. Please start your proxy server or disable proxy in settings.`,
+        proxyStatus: 'not_open',
+        proxyPort
+      });
+    }
+  } else {
+    const proxyOpen = await checkProxy(proxyPort);
+    if (proxyOpen) {
+      proxyStatus = 'available_not_used';
+      return res.status(400).json({
+        error: `Proxy is available on port ${proxyPort} but not enabled. Enable it in settings to use.`,
+        proxyStatus: 'available_not_used',
+        proxyPort
+      });
+    }
+  }
+  
+  try {
+    let cmd;
+    if (useProxy && proxyStatus === 'connected') {
+      if (proxyUser && proxyPass) {
+        cmd = `git clone -c http.proxy=http://${proxyUser}:${proxyPass}@${proxyAddress}:${proxyPort} -c https.proxy=http://${proxyUser}:${proxyPass}@${proxyAddress}:${proxyPort} "${url}" "${targetPath}"`;
+      } else {
+        cmd = `git clone -c http.proxy=http://${proxyAddress}:${proxyPort} -c https.proxy=http://${proxyAddress}:${proxyPort} "${url}" "${targetPath}"`;
+      }
+    } else {
+      cmd = `git clone "${url}" "${targetPath}"`;
+    }
+    
+    await runCommand(cmd, targetDir);
+    res.json({ success: true, path: targetPath, proxyStatus });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/compress/zip-base64', async (req, res) => {
+  const { sourceFolder, outputFolder } = req.body;
+  
+  if (!sourceFolder || !fs.existsSync(sourceFolder)) {
+    return res.status(400).json({ error: 'Invalid source folder' });
+  }
+  
+  const outDir = outputFolder || getFolder('compress');
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true });
+  }
+  
+  const folderName = path.basename(sourceFolder);
+  const tempZip = path.join(os.tmpdir(), `${folderName}_${generateId()}.zip`);
+  
+  try {
+    const excludeArgs = EXCLUDE_PATTERNS.flatMap(p => 
+      p.startsWith('*') ? [`-x!${p.slice(1)}`] : [`-x!${p}*`, `-x!${p}\\`]
+    );
+    
+    const cmd = `"${get7zPath()}" a -r -tzip "${tempZip}" "${sourceFolder}\\*" ${excludeArgs.join(' ')}`;
+    await runCommand(cmd);
+    
+    if (!fs.existsSync(tempZip)) {
+      throw new Error('Failed to create ZIP');
+    }
+    
+    const zipContent = fs.readFileSync(tempZip);
+    const base64Content = zipContent.toString('base64');
+    const sizeKB = Math.ceil(zipContent.length / 1024);
+    
+    const outputFileName = `BS64_${sizeKB}K_${folderName}.txt`;
+    const outputPath = path.join(outDir, outputFileName);
+    
+    fs.writeFileSync(outputPath, base64Content);
+    fs.unlinkSync(tempZip);
+    
+    res.json({ success: true, outputPath });
+  } catch (error) {
+    if (fs.existsSync(tempZip)) fs.unlinkSync(tempZip);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/compress/txt', async (req, res) => {
+  const { sourceFolder, outputFolder } = req.body;
+  
+  if (!sourceFolder || !fs.existsSync(sourceFolder)) {
+    return res.status(400).json({ error: 'Invalid source folder' });
+  }
+  
+  const outDir = outputFolder || getFolder('compress');
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true });
+  }
+  
+  const folderName = path.basename(sourceFolder);
+  const outputPath = path.join(outDir, `${folderName}.txt`);
+  
+  let fileCount = 0;
+  let skipCount = 0;
+  
+  try {
+    const writeStream = fs.createWriteStream(outputPath, { encoding: 'utf-8' });
+    writeStream.write(`===MERGE_INFO:folder=${folderName}===\n`);
+    
+    function walkDir(dir) {
+      const items = fs.readdirSync(dir, { withFileTypes: true });
+      const dirs = items.filter(i => i.isDirectory()).map(i => i.name).sort();
+      const files = items.filter(i => i.isFile()).map(i => i.name).sort();
+      
+      for (const d of dirs) {
+        if (!shouldExclude(d)) {
+          walkDir(path.join(dir, d));
+        }
+      }
+      
+      for (const f of files) {
+        const filePath = path.join(dir, f);
+        if (shouldExclude(filePath)) {
+          skipCount++;
+          continue;
+        }
+        
+        const relPath = path.relative(sourceFolder, filePath);
+        writeStream.write(`\n===FILE:${relPath}===\n`);
+        
+        try {
+          const content = fs.readFileSync(filePath, 'utf-8');
+          writeStream.write(content);
+        } catch (e) {
+          writeStream.write('[Binary file or read error]');
+        }
+        
+        writeStream.write('\n===END===\n');
+        fileCount++;
+      }
+    }
+    
+    walkDir(sourceFolder);
+    writeStream.end();
+    
+    await new Promise(resolve => writeStream.on('finish', resolve));
+    
+    const stats = fs.statSync(outputPath);
+    const sizeKB = Math.ceil(stats.size / 1024);
+    
+    const finalName = `MERGE_${sizeKB}K_${folderName}.txt`;
+    const finalPath = path.join(outDir, finalName);
+    
+    fs.renameSync(outputPath, finalPath);
+    
+    res.json({ success: true, outputPath: finalPath, fileCount, skipCount });
+  } catch (error) {
+    if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/extract/zip-base64', async (req, res) => {
+  const { inputFile, outputFolder } = req.body;
+
+  if (!inputFile || !fs.existsSync(inputFile)) {
+    return res.status(400).json({ error: 'Invalid input file' });
+  }
+
+  const baseOutDir = outputFolder || getFolder('extract');
+  if (!fs.existsSync(baseOutDir)) {
+    fs.mkdirSync(baseOutDir, { recursive: true });
+  }
+
+  // Get filename (without extension) as subfolder name
+  const fileName = path.basename(inputFile, path.extname(inputFile));
+  const outDir = path.join(baseOutDir, fileName);
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true });
+  }
+
+  try {
+    const base64Content = fs.readFileSync(inputFile, 'utf-8');
+    const zipBuffer = Buffer.from(base64Content, 'base64');
+
+    const tempZip = path.join(os.tmpdir(), `extract_${generateId()}.zip`);
+    fs.writeFileSync(tempZip, zipBuffer);
+
+    await runCommand(`"${get7zPath()}" x -y -o"${outDir}" "${tempZip}"`);
+
+    fs.unlinkSync(tempZip);
+
+    res.json({ success: true, outputPath: outDir });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/extract/txt', async (req, res) => {
+  const { inputFile, outputFolder } = req.body;
+
+  if (!inputFile || !fs.existsSync(inputFile)) {
+    return res.status(400).json({ error: 'Invalid input file' });
+  }
+
+  const baseOutDir = outputFolder || getFolder('extract');
+  if (!fs.existsSync(baseOutDir)) {
+    fs.mkdirSync(baseOutDir, { recursive: true });
+  }
+
+  // Get filename (without extension) as subfolder name
+  const fileName = path.basename(inputFile, path.extname(inputFile));
+  const outDir = path.join(baseOutDir, fileName);
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true });
+  }
+
+  try {
+    const content = fs.readFileSync(inputFile, 'utf-8');
+    const lines = content.split('\n');
+
+    let currentFile = null;
+    let currentContent = [];
+    let inContent = false;
+    let fileCount = 0;
+
+    for (const line of lines) {
+      if (line.startsWith('===MERGE_INFO:')) continue;
+
+      if (line.startsWith('===FILE:')) {
+        if (currentFile) {
+          // Replace backslashes with forward slashes to avoid Windows path issues
+          const normalizedFile = currentFile.replace(/\\/g, '/');
+          const fullPath = path.join(outDir, normalizedFile);
+          fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+          fs.writeFileSync(fullPath, currentContent.join('\n'));
+          fileCount++;
+        }
+        // Remove prefix ===FILE: and suffix ===
+        currentFile = line.slice(8).replace(/===$/, '').trim();
+        currentContent = [];
+        inContent = true;
+      } else if (line === '===END===') {
+        if (currentFile) {
+          // Replace backslashes with forward slashes to avoid Windows path issues
+          const normalizedFile = currentFile.replace(/\\/g, '/');
+          const fullPath = path.join(outDir, normalizedFile);
+          fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+          fs.writeFileSync(fullPath, currentContent.join('\n'));
+          fileCount++;
+          currentFile = null;
+          currentContent = [];
+          inContent = false;
+        }
+      } else if (inContent && currentFile) {
+        currentContent.push(line);
+      }
+    }
+
+    if (currentFile) {
+      // Replace backslashes with forward slashes to avoid Windows path issues
+      const normalizedFile = currentFile.replace(/\\/g, '/');
+      const fullPath = path.join(outDir, normalizedFile);
+      fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+      fs.writeFileSync(fullPath, currentContent.join('\n'));
+      fileCount++;
+    }
+
+    res.json({ success: true, outputPath: outDir, fileCount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/github/download-file', async (req, res) => {
+  const { url } = req.body;
+  const config = loadConfig();
+  
+  if (!url) {
+    return res.status(400).json({ error: 'URL is required' });
+  }
+  
+  let rawUrl = url;
+  if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
+    rawUrl = url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+  }
+  
+  const downloadDir = getFolder('download');
+  if (!fs.existsSync(downloadDir)) {
+    fs.mkdirSync(downloadDir, { recursive: true });
+  }
+  
+  const fileName = rawUrl.split('/').pop() || 'download';
+  const filePath = path.join(downloadDir, fileName);
+  
+  const proxyPort = config.download_proxy_port || 10808;
+  const proxyAddress = config.download_proxy_address || '127.0.0.1';
+  const proxyUser = config.download_proxy_user || '';
+  const proxyPass = config.download_proxy_pass || '';
+  const useProxy = config.download_proxy_enabled;
+  
+  try {
+    let curlCmd;
+    if (useProxy) {
+      const proxyOpen = await checkProxy(proxyPort);
+      if (!proxyOpen) {
+        return res.status(400).json({ 
+          error: `Proxy port ${proxyPort} is not open. Please start your download proxy server.`,
+          proxyPort
+        });
+      }
+      
+      if (proxyUser && proxyPass) {
+        curlCmd = `curl -x http://${proxyUser}:${proxyPass}@${proxyAddress}:${proxyPort} -L -o "${filePath}" "${rawUrl}"`;
+      } else {
+        curlCmd = `curl -x http://${proxyAddress}:${proxyPort} -L -o "${filePath}" "${rawUrl}"`;
+      }
+    } else {
+      curlCmd = `curl -L -o "${filePath}" "${rawUrl}"`;
+    }
+    
+    await runCommand(curlCmd);
+    
+    if (fs.existsSync(filePath)) {
+      res.json({ success: true, path: filePath, fileName });
+    } else {
+      res.status(500).json({ error: 'Download failed' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`DevToolkit running at http://localhost:${PORT}`);
+
+  // Auto open browser
+  const url = `http://localhost:${PORT}`;
+  const start = (process.platform === 'win32') ? 'start' : 'open';
+  execSync(`${start} ${url}`, { stdio: 'ignore', windowsHide: true });
+});
+
+===END===
