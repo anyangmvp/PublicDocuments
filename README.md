@@ -1,83 +1,228 @@
-# DevToolkit
+# ShareTools
 
-Developer Utilities Suite - A modern web-based tool for developer tasks.
+A comprehensive developer utilities suite with Web UI and MCP (Model Context Protocol) integration for AI-powered workflows.
 
-## Features
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.8%2B-blue?style=flat-square" alt="Python">
+  <img src="https://img.shields.io/badge/FastAPI-0.115%2B-green?style=flat-square" alt="FastAPI">
+  <img src="https://img.shields.io/badge/FastMCP-2.0%2B-orange?style=flat-square" alt="FastMCP">
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License">
+</p>
 
-### GitHub Clone
-- Clone GitHub repositories to local folder
-- Auto-detect proxy status (default port: 10808)
-- Use proxy for clone if enabled
-- **Hidden automatically** if Windows username is numeric (e.g., 10808)
+---
 
-### Download
-- Download single files from GitHub
-- Automatically converts GitHub URL to raw.githubusercontent.com URL
-- Separate proxy settings for download (independent from clone proxy)
-- Default proxy port: 10808
+## ✨ Features
 
-### Compress
-- **ZIP + Base64**: Compress folder to ZIP, then encode as Base64
-- **Merge to TXT**: Merge all files into a single TXT file
-- Auto-exclude build artifacts: `.git`, `node_modules`, `target`, `build`, `__pycache__`, etc.
+### GitHub Integration
+- **Repository Clone** - Clone any GitHub repository with proxy support
+- **File Download** - Download single files directly from GitHub
 
-### Extract
-- **Extract ZIP+Base64**: Decode Base64 and extract ZIP
-- **Extract TXT**: Restore files from merged TXT
+### Compression Tools
+- **ZIP + Base64** - Compress folders to ZIP and encode as Base64 text
+- **Merge to TXT** - Merge all files into a single structured TXT file
 
-### Operation Logs
-- Records all operations (clone, download, compress, extract)
-- Displays operation details including file paths
-- One-click path copying
-- Persistent storage in localStorage
-- Slide-out panel on the right side of the screen
+### Extraction Tools
+- **Extract ZIP+Base64** - Decode Base64 and extract ZIP archives
+- **Extract from TXT** - Restore original file structure from merged TXT
 
-## Quick Start
+### File Management
+- **Browse Folders** - Navigate and list directory contents
+- **Browse Files** - View file contents with optional filtering
+
+### Configuration
+- **Proxy Support** - Separate proxy settings for Git and downloads
+- **Custom Folders** - Configure parent directory for all operations
+
+---
+
+## 🚀 Quick Start
 
 ```bash
-npm install
-npm start
+# Install dependencies
+pip install -r requirements.txt
+
+# Start server (Web UI + MCP HTTP)
+python server.py
 ```
 
-Then open http://localhost:3000
+The server will automatically open your browser to http://localhost:3000/ (Web UI) when it starts up.
 
-## Proxy Detection
+---
 
-### GitHub Clone
-The app will automatically detect if a proxy is running on port 10808:
+## 📖 Architecture
 
-1. **Proxy available but not enabled**: Shows warning that proxy is available
-2. **Proxy enabled but not running**: Shows error to start proxy
-3. **Proxy enabled and running**: Uses proxy for git clone
+```
+PublicDocuments/
+├── core.py              # ShareTools Core API (business logic)
+├── server.py            # Web Server entry point (FastAPI) with auto browser open feature
+├── public/
+│   └── index.html       # Web UI
+├── share-tools-skills/     # Claude/Trae Skill
+│   ├── SKILL.md         # Skill definition
+│   └── scripts/         # Skill scripts (use core.py)
+├── config.json          # Runtime configuration
+├── requirements.txt     # Python dependencies
+    └── ...
+```
 
-### File Download
-- Separate proxy setting for file download
-- Configure in Settings - "Download Proxy" section
-- Default port: 10808
+### Module Design
 
-## Settings
+| File | Description |
+|------|-------------|
+| `core.py` | Contains all business logic - reusable across projects |
+| `server.py` | Web server + MCP protocol handlers - depends on core.py |
+
+### ShareTools API Class
+
+```python
+from core import ShareToolsAPI
+
+api = ShareToolsAPI()
+```
+
+---
+
+## 🔌 Running Modes
+
+| Command | Description | Ports | Browser Auto-Open |
+|---------|-------------|-------|-------------------|
+| `python server.py` | Web API + MCP HTTP (default) | 3000 | Yes, opens API docs at http://localhost:3000/docs |
+
+---
+
+## 🤖 MCP Integration
+
+### Available Tools (ShareTools Prefix)
+
+All MCP tools have the `sharetools_` prefix for easy AI recognition:
+
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `sharetools_github_clone` | Clone a GitHub repository | `url` |
+| `sharetools_github_download` | Download a file from GitHub | `url` |
+| `sharetools_compress_zip` | Compress folder to Base64 ZIP | `source_folder`, `output_folder?` |
+| `sharetools_compress_txt` | Merge folder to TXT | `source_folder`, `output_folder?` |
+| `sharetools_extract_zip` | Extract Base64 ZIP | `input_file`, `output_folder?` |
+| `sharetools_extract_txt` | Extract from merged TXT | `input_file`, `output_folder?` |
+| `sharetools_get_config` | Get current configuration | - |
+| `sharetools_set_config` | Set configuration | `parent_folder`, `proxy_*`, etc. |
+| `sharetools_browse_folder` | Browse folder contents | `path?` |
+| `sharetools_browse_file` | Browse file or folder | `path`, `filter?` |
+| `sharetools_get_folders` | Get configured folder paths | - |
+
+### MCP Configuration
+
+**For Claude/Trae (Stdio):**
+```json
+{
+  "mcpServers": {
+    "command": "python",
+    "args": ["server.py", "--mcp-stdio"]
+    }
+}
+```
+
+**For Claude/Trae (HTTP):**
+```json
+{
+  "mcpServers": {
+    "url": "http://localhost:3000/mcp/streamable-http"
+    }
+}
+```
+
+---
+
+## 🛠️ API Usage (core.py)
+
+Copy `core.py` to your project for direct API access:
+
+```python
+import asyncio
+from core import api
+
+# Clone repository
+result = asyncio.run(api.github_clone('https://github.com/owner/repo'))
+
+# Download file
+result = asyncio.run(api.github_download('https://github.com/owner/repo/blob/main/file.txt'))
+
+# Compress folder
+result = asyncio.run(api.compress_zip('C:/path/to/folder'))
+
+# Extract files
+result = asyncio.run(api.extract_zip('C:/path/to/file.txt'))
+
+# Get configuration
+config = api.get_config()
+
+# Set configuration
+api.set_config({'parent_folder': 'my-files'})
+
+# Browse folders
+result = asyncio.run(api.browse_folder('C:/path'))
+
+# Browse files
+result = asyncio.run(api.browse_file('C:/path/to/file.txt'))
+```
+
+---
+
+## 🌐 Web API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/config` | Get configuration |
+| POST | `/api/config` | Set configuration |
+| GET | `/api/folders` | Get folder paths |
+| GET | `/api/system-info` | Get system information |
+| POST | `/api/github/clone` | Clone repository |
+| POST | `/api/github/download-file` | Download file |
+| POST | `/api/compress/zip-base64` | Compress to ZIP+Base64 |
+| POST | `/api/compress/txt` | Merge to TXT |
+| POST | `/api/extract/zip-base64` | Extract ZIP+Base64 |
+| POST | `/api/extract/txt` | Extract from TXT |
+| GET | `/api/browse/folder` | Browse folder |
+| GET | `/api/browse/file` | Browse file/folder |
+
+---
+
+## 🎓 Skill Usage
+
+The `share-tools-skills` folder contains Python scripts that wrap `core.py`:
+
+```bash
+cd share-tools-skills/scripts
+
+# Clone repository
+python github_clone.py https://github.com/facebook/react
+
+# Compress folder
+python compress_zip.py "C:\Projects\myapp"
+
+# Get configuration
+python get_config.py
+```
+
+See [SKILL.md](share-tools-skills/SKILL.md) for detailed documentation.
+
+---
+
+## ⚙️ Configuration
+
+### Default Settings
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| Parent Folder | Base folder for all operations | repo-files |
-| Enable GitHub Clone | Show/hide clone tab | Auto (hidden if username is numeric) |
-| Proxy (Clone) | Proxy for git clone | Port 10808 |
-| Download Proxy | Proxy for file download | Port 10808 |
+| `parent_folder` | Base folder for all operations | `repo-files` |
+| `proxy_enabled` | Enable proxy for git clone | `false` |
+| `proxy_address` | Proxy server address | `127.0.0.1` |
+| `proxy_port` | Proxy server port | `10808` |
+| `download_proxy_enabled` | Enable proxy for downloads | `false` |
+| `download_proxy_address` | Download proxy address | `127.0.0.1` |
+| `download_proxy_port` | Download proxy port | `10808` |
 
-## Theme
-
-Toggle between Dark/Light mode using the button in the top-right corner.
-
-## Tech Stack
-
-- **Frontend**: Pure HTML/CSS/JS with modern design
-- **Backend**: Node.js + Express
-- **Compression**: 7-Zip (via command line)
-- **Download**: cURL
-
-## Folder Structure
-
-All operations use folders under the parent folder:
+### Default Folder Structure
 
 ```
 repo-files/
@@ -86,3 +231,28 @@ repo-files/
 ├── extract/    # Extracted files
 └── download/   # Downloaded files
 ```
+
+---
+
+## 📦 Dependencies
+
+```
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+fastmcp>=2.0.0
+pydantic>=2.10.0
+```
+
+---
+
+## 📝 License
+
+MIT License - feel free to use in your projects.
+
+---
+
+## 🔗 References
+
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [FastMCP Documentation](https://fastmcp.wiki/)
+- [MCP Protocol](https://modelcontextprotocol.io/)
