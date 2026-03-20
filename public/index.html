@@ -2059,23 +2059,23 @@
         download_proxy_pass: serverConfig.download_proxy_pass || ''
       };
       
-      document.getElementById('parentFolder').value = config.parent_folder;
+      document.getElementById('parentFolder').value = config.parent_folder || '';
       document.getElementById('proxyEnabled').checked = config.proxy_enabled;
-      document.getElementById('proxyAddress').value = config.proxy_address;
-      document.getElementById('proxyPort').value = config.proxy_port;
-      document.getElementById('proxyUser').value = config.proxy_user;
-      document.getElementById('proxyPass').value = config.proxy_pass;
+      document.getElementById('proxyAddress').value = config.proxy_address || '127.0.0.1';
+      document.getElementById('proxyPort').value = config.proxy_port || 10808;
+      document.getElementById('proxyUser').value = config.proxy_user || '';
+      document.getElementById('proxyPass').value = config.proxy_pass || '';
       document.getElementById('downloadProxyEnabled').checked = config.download_proxy_enabled;
-      document.getElementById('downloadProxyAddress').value = config.download_proxy_address;
-      document.getElementById('downloadProxyPort').value = config.download_proxy_port;
-      document.getElementById('downloadProxyUser').value = config.download_proxy_user;
-      document.getElementById('downloadProxyPass').value = config.download_proxy_pass;
+      document.getElementById('downloadProxyAddress').value = config.download_proxy_address || '127.0.0.1';
+      document.getElementById('downloadProxyPort').value = config.download_proxy_port || 10808;
+      document.getElementById('downloadProxyUser').value = config.download_proxy_user || '';
+      document.getElementById('downloadProxyPass').value = config.download_proxy_pass || '';
       
       const folders = await api(`/api/folders?parent=${encodeURIComponent(config.parent_folder)}`);
       document.getElementById('folderInfo').textContent = 
-        `github: ${folders.github}, compress: ${folders.compress}, extract: ${folders.extract}, download: ${folders.download}`;
-      document.getElementById('compressOutput').value = folders.compress;
-      document.getElementById('extractOutput').value = folders.extract;
+        `github: ${folders.github || '-'}, compress: ${folders.compress || '-'}, extract: ${folders.extract || '-'}, download: ${folders.download || '-'}`;
+      document.getElementById('compressOutput').value = folders.compress || '';
+      document.getElementById('extractOutput').value = folders.extract || '';
       
       updateTabsVisibility(isNumericUsername);
       
@@ -2255,9 +2255,9 @@
         
         const folders = await api(`/api/folders?parent=${encodeURIComponent(config.parent_folder)}`);
         document.getElementById('folderInfo').textContent = 
-          `github: ${folders.github}, compress: ${folders.compress}, extract: ${folders.extract}, download: ${folders.download}`;
-        document.getElementById('compressOutput').value = folders.compress;
-        document.getElementById('extractOutput').value = folders.extract;
+          `github: ${folders.github || '-'}, compress: ${folders.compress || '-'}, extract: ${folders.extract || '-'}, download: ${folders.download || '-'}`;
+        document.getElementById('compressOutput').value = folders.compress || '';
+        document.getElementById('extractOutput').value = folders.extract || '';
         
         showToast('Settings saved successfully!');
       } catch (error) {
