@@ -5,7 +5,7 @@
   "proxy_port": 10808,
   "proxy_user": "",
   "proxy_pass": "",
-  "download_proxy_enabled": true,
+  "download_proxy_enabled": false,
   "download_proxy_address": "127.0.0.1",
   "download_proxy_port": 10808,
   "download_proxy_user": "",
